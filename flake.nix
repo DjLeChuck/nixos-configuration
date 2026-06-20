@@ -19,7 +19,7 @@
         system = "x86_64-linux";
         modules = [
           ./common/configuration.nix
-          ./hosts/vm-test/hardware-configuration.nix
+          ./machines/vm-test/hardware-configuration.nix
 
           {
             boot.loader.grub.enable = true;
@@ -46,8 +46,8 @@
         system = "x86_64-linux";
         modules = [
           ./common/configuration.nix
-          ./hosts/home/hardware-configuration.nix
-          ./hosts/home/default.nix
+          ./machines/home/hardware-configuration.nix
+          ./machines/home/default.nix
 
           {
             boot.loader.systemd-boot.enable = true;
