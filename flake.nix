@@ -27,6 +27,7 @@
           ./common/configuration.nix
           ./machines/vm-home/hardware-configuration.nix
           ./machines/vm-common/default.nix
+          ./machines/vm-home/default.nix
           sops-nix.nixosModules.sops
           { networking.hostName = "vm-home"; }
         ];

@@ -1,6 +1,15 @@
 { config, pkgs, ... }:
 
 {
+  imports = [ ../../common/modules/foundryvtt.nix ];
+
+  services.foundryvtt-instances = {
+    v11.port = 30011;
+    v12.port = 30012;
+    v13.port = 30013;
+    v14.port = 30014;
+  };
+
   services.xserver.videoDrivers = [ "nvidia" ];
 
   hardware.nvidia = {
