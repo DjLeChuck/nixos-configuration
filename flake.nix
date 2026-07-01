@@ -8,9 +8,14 @@
       url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }: {
+  outputs = { self, nixpkgs, home-manager, sops-nix, ... }: {
     nixosConfigurations = {
       # -------------------------------------------------------
       # VM VirtualBox - Home
@@ -22,6 +27,7 @@
           ./common/configuration.nix
           ./machines/vm-home/hardware-configuration.nix
           ./machines/vm-common/default.nix
+          sops-nix.nixosModules.sops
           { networking.hostName = "djlechuck-vm-home"; }
         ];
       };
@@ -36,6 +42,7 @@
           ./common/configuration.nix
           ./machines/vm-work/hardware-configuration.nix
           ./machines/vm-common/default.nix
+          sops-nix.nixosModules.sops
           { networking.hostName = "djlechuck-vm-work"; }
         ];
       };
@@ -49,6 +56,7 @@
           ./common/configuration.nix
           ./machines/home/hardware-configuration.nix
           ./machines/home/default.nix
+          sops-nix.nixosModules.sops
 
           {
             boot.loader.systemd-boot.enable = true;

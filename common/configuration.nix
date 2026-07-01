@@ -66,7 +66,9 @@
     python3
     python3Packages.pip
     signal-desktop
+    sops
     spotify
+    ssh-to-age
     terminator
     trivy
     unzip
@@ -121,6 +123,16 @@
 
   virtualisation.docker.enable = true;
 
+  services.openssh = {
+    enable = true;
+    settings = {
+      PasswordAuthentication = false;
+      PermitRootLogin = "no";
+      KbdInteractiveAuthentication = false;
+      AllowUsers = [ "djlechuck" ];
+    };
+  };
+
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
@@ -160,4 +172,3 @@
     liberation_ttf
   ];
 }
-

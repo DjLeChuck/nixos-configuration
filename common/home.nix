@@ -1,5 +1,8 @@
 { pkgs, ... }:
 
+let
+  variables = import ./variables.nix;
+in
 {
   home.stateVersion = "26.05";
 
@@ -201,11 +204,7 @@
     includes = [ "~/.ssh/config.d/*.conf" ];
 
     settings = {
-      nas = {
-        hostname = "192.168.0.42";
-        port = 9222;
-        user = "truenas_admin";
-      };
+      nas = variables.nas;
 
       "*" = {
         HostKeyAlgorithms = "+ssh-rsa";
