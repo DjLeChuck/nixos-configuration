@@ -13,35 +13,35 @@
   outputs = { self, nixpkgs, home-manager, ... }: {
     nixosConfigurations = {
       # -------------------------------------------------------
-      # Test VM
+      # VM VirtualBox - Home
       # -------------------------------------------------------
-      vm-test = nixpkgs.lib.nixosSystem {
+      vm-home = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
+        specialArgs = { inherit home-manager; };
         modules = [
           ./common/configuration.nix
-          ./machines/vm-test/hardware-configuration.nix
-
-          {
-            boot.loader.grub.enable = true;
-            boot.loader.grub.device = "/dev/sda";
-            networking.hostName = "djlechuck-nix";
-            system.stateVersion = "26.05";
-
-            users.users.djlechuck.extraGroups = [ "vboxsf" ];
-          }
-
-          home-manager.nixosModules.home-manager
-          {
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.backupFileExtension = "bck";
-            home-manager.users.djlechuck = import ./common/home.nix;
-          }
+          ./machines/vm-home/hardware-configuration.nix
+          ./machines/vm-common/default.nix
+          { networking.hostName = "djlechuck-vm-home"; }
         ];
       };
 
       # -------------------------------------------------------
-      # Real computer
+      # VM VirtualBox - Work
+      # -------------------------------------------------------
+      vm-work = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        specialArgs = { inherit home-manager; };
+        modules = [
+          ./common/configuration.nix
+          ./machines/vm-work/hardware-configuration.nix
+          ./machines/vm-common/default.nix
+          { networking.hostName = "djlechuck-vm-work"; }
+        ];
+      };
+
+      # -------------------------------------------------------
+      # Personal computer
       # -------------------------------------------------------
       home = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
@@ -69,4 +69,3 @@
     };
   };
 }
-
