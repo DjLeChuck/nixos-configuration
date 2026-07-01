@@ -74,6 +74,34 @@
           }
         ];
       };
+
+      # -------------------------------------------------------
+      # Work computer
+      # -------------------------------------------------------
+      work = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          ./common/configuration.nix
+          ./machines/work/hardware-configuration.nix
+          ./machines/work/default.nix
+          sops-nix.nixosModules.sops
+
+          {
+            boot.loader.systemd-boot.enable = true;
+            boot.loader.efi.canTouchEfiVariables = true;
+            networking.hostName = "LIN-2025-1";
+            system.stateVersion = "26.05";
+          }
+
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.backupFileExtension = "bck";
+            home-manager.users.djlechuck = import ./common/home.nix;
+          }
+        ];
+      };
     };
   };
 }
