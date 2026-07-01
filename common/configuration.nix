@@ -50,31 +50,14 @@
     docker-compose
     file
     gcc
-    gimp
-    gitflow
     gnome-tweaks
     gnumake
-    jetbrains.goland
-    jetbrains.phpstorm
-    jpegoptim
-    k6
-    libreoffice
-    libwebp
-    mattermost-desktop
-    pngquant
-    postman
     python3
     python3Packages.pip
-    signal-desktop
     sops
-    spotify
     ssh-to-age
-    terminator
-    trivy
     unzip
-    vlc
     wget
-    wkhtmltopdf
     zip
   ];
 

@@ -7,7 +7,24 @@ in
   home.stateVersion = "26.05";
 
   home.packages = with pkgs; [
+    gimp
+    gitflow
+    jetbrains.goland
+    jetbrains.phpstorm
+    jpegoptim
+    k6
+    libreoffice
+    libwebp
+    mattermost-desktop
     nextcloud-client
+    pngquant
+    postman
+    signal-desktop
+    spotify
+    terminator
+    trivy
+    vlc
+    wkhtmltopdf
   ];
 
   programs.git = {
