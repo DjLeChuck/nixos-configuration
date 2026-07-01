@@ -28,7 +28,7 @@
           ./machines/vm-home/hardware-configuration.nix
           ./machines/vm-common/default.nix
           sops-nix.nixosModules.sops
-          { networking.hostName = "djlechuck-vm-home"; }
+          { networking.hostName = "vm-home"; }
         ];
       };
 
@@ -43,7 +43,7 @@
           ./machines/vm-work/hardware-configuration.nix
           ./machines/vm-common/default.nix
           sops-nix.nixosModules.sops
-          { networking.hostName = "djlechuck-vm-work"; }
+          { networking.hostName = "vm-work"; }
         ];
       };
 
