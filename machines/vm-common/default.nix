@@ -10,6 +10,7 @@
   system.stateVersion = "26.05";
 
   users.users.djlechuck.extraGroups = [ "vboxsf" ];
+  users.users.djlechuck.hashedPassword = "$6$MwGByc4Pbzv7QYaD$91kzkjvPMNgndWAQeYITb3sZrDhAVWzLayuNCeEfPlftU9QzyXJCn12dj1D.WcbH3Je57eWU2TPPEU8x/O6Ke.";
 
   home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
