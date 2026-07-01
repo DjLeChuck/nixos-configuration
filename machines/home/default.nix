@@ -26,7 +26,7 @@
     winetricks
   ];
 
-  programs.gamemode.enable = true
+  programs.gamemode.enable = true;
 
   programs.ghidra = {
     enable = true;
@@ -39,4 +39,3 @@
     remotePlay.openFirewall = true;
   };
 }
-

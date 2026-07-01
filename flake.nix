@@ -34,6 +34,7 @@
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
+            home-manager.backupFileExtension = "bck";
             home-manager.users.djlechuck = import ./common/home.nix;
           }
         ];
@@ -60,6 +61,7 @@
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
+            home-manager.backupFileExtension = "bck";
             home-manager.users.djlechuck = import ./common/home.nix;
           }
         ];
