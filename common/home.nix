@@ -6,6 +6,10 @@ in
 {
   home.stateVersion = "26.05";
 
+  home.packages = with pkgs; [
+    nextcloud-client
+  ];
+
   programs.git = {
     enable = true;
     lfs.enable = true;
