@@ -16,7 +16,6 @@ in
     libreoffice
     libwebp
     mattermost-desktop
-    nextcloud-client
     pngquant
     postman
     signal-desktop
@@ -26,6 +25,11 @@ in
     vlc
     wkhtmltopdf
   ];
+
+  services.nextcloud-client = {
+    enable = true;
+    startInBackground = true;
+  };
 
   programs.git = {
     enable = true;
