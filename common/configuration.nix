@@ -128,17 +128,6 @@
   hardware.graphics.enable = true;
   hardware.enableRedistributableFirmware = true;
 
-  users.users.djlechuck = {
-    isNormalUser = true;
-    description = "DjLeChuck";
-    extraGroups = [
-      "networkmanager"
-      "wheel"
-      "docker"
-    ];
-    shell = pkgs.fish;
-  };
-
   nix.settings = {
     experimental-features = [ "nix-command" "flakes" ];
   };

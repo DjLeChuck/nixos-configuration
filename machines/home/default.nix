@@ -16,7 +16,12 @@
     enableExtensionPack = true;
   };
 
-  users.users.djlechuck.extraGroups = [ "vboxusers" ];
+  users.users.djlechuck = {
+    isNormalUser = true;
+    description = "DjLeChuck";
+    extraGroups = [ "networkmanager" "wheel" "docker" "vboxusers" ];
+    shell = pkgs.fish;
+  };
 
   environment.systemPackages = with pkgs; [
     gamescope
