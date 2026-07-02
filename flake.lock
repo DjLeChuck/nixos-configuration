@@ -1,5 +1,25 @@
 {
   "nodes": {
+    "foundryvtt": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1783009137,
+        "narHash": "sha256-dS/EAU+coAXJUPz+S2TrMjz0tvSfgu1Q43+DwLQ/VYo=",
+        "owner": "djlechuck",
+        "repo": "nixos-foundryvtt",
+        "rev": "23de3822c15f61e3bef17717c37a39c86d689c0e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "djlechuck",
+        "repo": "nixos-foundryvtt",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -39,6 +59,7 @@
     },
     "root": {
       "inputs": {
+        "foundryvtt": "foundryvtt",
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs",
         "sops-nix": "sops-nix"

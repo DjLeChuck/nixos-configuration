@@ -1,8 +1,6 @@
 { config, pkgs, ... }:
 
 {
-  imports = [ ../../common/modules/foundryvtt.nix ];
-
   services.foundryvtt-instances = {
     v11.port = 30011;
     v12.port = 30012;
@@ -28,7 +26,7 @@
   users.users.djlechuck = {
     isNormalUser = true;
     description = "DjLeChuck";
-    extraGroups = [ "networkmanager" "wheel" "docker" "vboxusers" ];
+    extraGroups = [ "networkmanager" "wheel" "docker" "vboxusers" "foundryvtt" ];
     shell = pkgs.fish;
   };
 

@@ -13,9 +13,14 @@
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    foundryvtt = {
+      url = "github:djlechuck/nixos-foundryvtt";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, home-manager, sops-nix, ... }: {
+  outputs = { self, nixpkgs, home-manager, sops-nix, foundryvtt, ... }: {
     nixosConfigurations = {
       # -------------------------------------------------------
       # VM VirtualBox - Home
@@ -29,6 +34,7 @@
           ./machines/vm-common/default.nix
           ./machines/vm-home/default.nix
           sops-nix.nixosModules.sops
+          foundryvtt.nixosModules.default
           { networking.hostName = "vm-home"; }
         ];
       };
@@ -58,6 +64,7 @@
           ./machines/home/hardware-configuration.nix
           ./machines/home/default.nix
           sops-nix.nixosModules.sops
+          foundryvtt.nixosModules.default
 
           {
             boot.loader.systemd-boot.enable = true;
@@ -86,6 +93,7 @@
           ./machines/work/hardware-configuration.nix
           ./machines/work/default.nix
           sops-nix.nixosModules.sops
+          foundryvtt.nixosModules.default
 
           {
             boot.loader.systemd-boot.enable = true;

@@ -1,12 +1,10 @@
 { pkgs, ... }:
 
 {
-  imports = [ ../../common/modules/foundryvtt.nix ];
-
   users.users.vdebona = {
     isNormalUser = true;
     description = "Vivien DE BONA";
-    extraGroups = [ "networkmanager" "wheel" "docker" ];
+    extraGroups = [ "networkmanager" "wheel" "docker" "foundryvtt" ];
     shell = pkgs.fish;
   };
 

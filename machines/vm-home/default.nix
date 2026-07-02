@@ -1,5 +1,5 @@
 {
-  imports = [ ../../common/modules/foundryvtt.nix ];
+  users.users.djlechuck.extraGroups = [ "foundryvtt" ];
 
   services.foundryvtt-instances.v14.port = 30014;
 }
