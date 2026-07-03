@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 
 let
   variables = import ./variables.nix;
@@ -115,6 +115,16 @@ in
       "**/_akkalia.yaml"
       "**/.claude/settings.local.json"
     ];
+  };
+
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;
+    enableFishIntegration = true;
+
+    config = {
+      whitelist.prefix = [ "${config.home.homeDirectory}/development/php" ];
+    };
   };
 
   programs.fish = {
