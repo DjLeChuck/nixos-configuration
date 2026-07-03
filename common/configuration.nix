@@ -1,5 +1,8 @@
 { config, pkgs, ... }:
 
+let
+  gnomeExtensionNames = import ./gnome-extension-names.nix;
+in
 {
   networking.networkmanager.enable = true;
 
@@ -37,29 +40,23 @@
     gnome-weather
   ];
 
-  environment.systemPackages = with pkgs; [
-    gnomeExtensions.appindicator
-    gnomeExtensions.dash-to-dock
-    gnomeExtensions.tiling-assistant
-    gnomeExtensions.quick-settings-audio-devices-hider
-    gnomeExtensions.quick-settings-audio-devices-renamer
-    gnomeExtensions.steal-my-focus-window
-
-    # bitwarden-desktop
-    dconf-editor
-    docker-compose
-    file
-    gcc
-    gnome-tweaks
-    gnumake
-    python3
-    python3Packages.pip
-    sops
-    ssh-to-age
-    unzip
-    wget
-    zip
-  ];
+  environment.systemPackages =
+    (map (name: pkgs.gnomeExtensions.${name}) gnomeExtensionNames)
+    ++ (with pkgs; [
+      dconf-editor
+      docker-compose
+      file
+      gcc
+      gnome-tweaks
+      gnumake
+      python3
+      python3Packages.pip
+      sops
+      ssh-to-age
+      unzip
+      wget
+      zip
+    ]);
 
   programs.appimage.enable = true;
 

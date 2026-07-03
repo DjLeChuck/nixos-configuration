@@ -2,11 +2,13 @@
 
 let
   variables = import ./variables.nix;
+  gnomeExtensionNames = import ./gnome-extension-names.nix;
 in
 {
   home.stateVersion = "26.05";
 
   home.packages = with pkgs; [
+    # bitwarden-desktop
     gimp
     gitflow
     jetbrains.goland
@@ -25,6 +27,13 @@ in
     vlc
     wkhtmltopdf
   ];
+
+  dconf.settings = {
+    "org/gnome/shell" = {
+      disable-user-extensions = false;
+      enabled-extensions = map (name: pkgs.gnomeExtensions.${name}.extensionUuid) gnomeExtensionNames;
+    };
+  };
 
   services.nextcloud-client = {
     enable = true;
