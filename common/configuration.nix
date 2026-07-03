@@ -4,6 +4,12 @@ let
   gnomeExtensionNames = import ./gnome-extension-names.nix;
 in
 {
+  imports = [
+    ../modules/wifi-home.nix
+  ];
+
+  sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
+
   networking.networkmanager.enable = true;
 
   time.timeZone = "Europe/Paris";

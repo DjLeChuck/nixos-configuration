@@ -1,6 +1,8 @@
 { config, pkgs, ... }:
 
 {
+  imports = [ ../../modules/vpn-work.nix ];
+
   services.foundryvtt-instances = {
     v11.port = 30011;
     v12.port = 30012;

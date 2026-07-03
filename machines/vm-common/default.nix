@@ -2,6 +2,7 @@
 {
   imports = [
     home-manager.nixosModules.home-manager
+    ../../modules/vpn-home.nix
   ];
 
   boot.loader.grub.enable = true;

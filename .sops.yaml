@@ -1,45 +1,74 @@
 keys:
-  # Age key of the "home" machine (djlechuck-linux), used as the admin key
-  # to edit all secrets. Retrieve it after the first rebuild with
-  # `services.openssh` enabled:
-  #   ssh-to-age -i /etc/ssh/ssh_host_ed25519_key.pub
-  - &host_home age1TODO_REPLACE_AFTER_REBUILD_HOME
+  # Age key of home
+  - &admin_djlechuck age1q7w27xhmetzu95svd92q7vmj29yhk5pcf8aeslxnduvfxsk7y3kqt4l2dd
 
-  # Age key of the "vm-home" VM (djlechuck-vm-home)
+  # Age key of home
+  # - &host_home age1TODO_REPLACE_AFTER_REBUILD_HOME
+
+  # Age key of work
+  # - &host_work age1TODO_REPLACE_AFTER_REBUILD_WORK
+
+  # Age key of vm-home
   - &host_vm_home age1dqlmhrmkdvllf3xqcxpsxh95jtxndfa2m6jjymc8zy9cweew5g7svd45v7
 
-  # Age key of the "vm-work" VM (djlechuck-vm-work)
-  - &host_vm_work age1TODO_REPLACE_AFTER_REBUILD_VM_WORK
-
-  # Age key of the future work machine (not created yet) - add it here once
-  # the machine is provisioned and its first rebuild is done.
-  # - &host_work_laptop age1TODO
+  # Age key of vm-work
+  # - &host_vm_work age1TODO_REPLACE_AFTER_REBUILD_VM_WORK
 
 creation_rules:
   # Secrets specific to vm-home
   - path_regex: secrets/vm-home\.yaml$
     key_groups:
       - age:
-          - *host_home
+          - *admin_djlechuck
+          #- *host_home
           - *host_vm_home
 
   # Secrets specific to vm-work
   - path_regex: secrets/vm-work\.yaml$
     key_groups:
       - age:
-          - *host_home
-          - *host_vm_work
+          - *admin_djlechuck
+          #- *host_work
+          #- *host_vm_work
 
   # Secrets specific to home
   - path_regex: secrets/home\.yaml$
     key_groups:
       - age:
-          - *host_home
+          - *admin_djlechuck
+          #- *host_home
+
+  # Secrets specific to work
+  - path_regex: secrets/work\.yaml$
+    key_groups:
+      - age:
+          - *admin_djlechuck
+          #- *host_work
 
   # Secrets shared across multiple machines
   - path_regex: secrets/common\.yaml$
     key_groups:
       - age:
-          - *host_home
+          - *admin_djlechuck
+          #- *host_home
+          #- *host_work
           - *host_vm_home
-          - *host_vm_work
+          #- *host_vm_work
+
+  # OpenVPN3 work VPN configs (raw .ovpn files, sops binary format)
+  - path_regex: secrets/vpn-work/.*\.ovpn$
+    key_groups:
+      - age:
+          - *admin_djlechuck
+          #- *host_home
+          #- *host_work
+          - *host_vm_home
+
+  # WireGuard home VPN config (raw .conf file, sops binary format)
+  - path_regex: secrets/vpn-home/.*\.conf$
+    key_groups:
+      - age:
+          - *admin_djlechuck
+          #- *host_work
+          - *host_vm_home
+          #- *host_vm_work

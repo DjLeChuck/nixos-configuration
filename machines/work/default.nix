@@ -1,6 +1,11 @@
 { pkgs, ... }:
 
 {
+  imports = [
+    ../../modules/vpn-work.nix
+    ../../modules/vpn-home.nix
+  ];
+
   users.users.vdebona = {
     isNormalUser = true;
     description = "Vivien DE BONA";
