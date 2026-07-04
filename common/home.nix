@@ -22,6 +22,7 @@ in
     postman
     signal-desktop
     spotify
+    symfony-cli
     terminator
     trivy
     vlc
@@ -34,11 +35,29 @@ in
       disable-user-extensions = false;
       enabled-extensions = map (name: pkgs.gnomeExtensions.${name}.extensionUuid) gnomeExtensionNames;
     };
+
+    "system/proxy" = {
+      mode = "auto";
+      autoconfig-url = "http://127.0.0.1:7080/proxy.pac";
+    };
   };
 
   services.nextcloud-client = {
     enable = true;
     startInBackground = true;
+  };
+
+  systemd.user.services.symfony-proxy = {
+    Unit.Description = "Symfony CLI local proxy";
+
+    Service = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = "${pkgs.symfony-cli}/bin/symfony proxy:start";
+      ExecStop = "${pkgs.symfony-cli}/bin/symfony proxy:stop";
+    };
+
+    Install.WantedBy = [ "default.target" ];
   };
 
   programs.git = {
