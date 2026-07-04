@@ -46,7 +46,7 @@
     lutris
     mumble
     solaar
-    wineWowPackages.stable
+    wineWow64Packages.stable
     winetricks
   ];
 
