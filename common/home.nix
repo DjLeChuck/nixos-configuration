@@ -69,23 +69,12 @@ in
       alias = {
         di = "diff -D";
         co = "checkout";
-        ci = "commit";
         st = "status -s";
-        br = "branch -v";
-        re = "remote -v";
-        hist = ''log --pretty=format:"%h %ad | %s%d [%an]" --graph --date=short'';
-        rh = "reset HEAD";
-        rhh = "reset --hard HEAD";
-        map = ''log --graph --full-history --all --color --pretty=format:"%Credm%h%Creset%x09%x1b[32m%d%x1b[0m%x20%s %Cgreen(%cr) %C(bold blue)<%an>%Creset"'';
-        logme = "log --author='vdebona@umanit.fr'";
         files = "!sh -c 'git diff-tree --no-commit-id --name-only -r $0'";
         amend = "commit --amend";
         ignore = "!sh -c 'git ls-files -z $0 | xargs -0 git update-index --skip-worktree'";
         unignore = "!sh -c 'git ls-files -z $0 | xargs -0 git update-index --no-skip-worktree'";
         ignored = ''!git ls-files -v | grep "^S"'';
-        undo = "reset --soft HEAD^";
-        alias = ''! git config --get-regexp ^alias\\. | sed -e s/^alias\\.// -e s/\\ /\\ =\\ /'';
-        mr = "!sh -c 'git fetch $1 merge-requests/$2/head:mr-$1-$2 && git checkout mr-$1-$2' -";
       };
     };
 
