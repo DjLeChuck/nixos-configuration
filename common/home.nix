@@ -26,6 +26,7 @@ in
     trivy
     vlc
     wkhtmltopdf
+    zed-editor
   ];
 
   dconf.settings = {
