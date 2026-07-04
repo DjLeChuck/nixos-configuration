@@ -4,4 +4,9 @@
     port = 22;
     user = "changeme";
   };
+  wifi = {
+    home = {
+      ssid = "my-ssid";
+    };
+  };
 }
