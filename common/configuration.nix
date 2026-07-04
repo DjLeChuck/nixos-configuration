@@ -39,11 +39,19 @@ in
   services.desktopManager.gnome.enable = true;
 
   environment.gnome.excludePackages = with pkgs; [
-    gnome-music
+    decibels
     epiphany
     geary
+    gnome-calendar
+    gnome-connections
+    gnome-contacts
     gnome-maps
+    gnome-music
+    gnome-tour
     gnome-weather
+    showtime
+    snapshot
+    yelp
   ];
 
   environment.systemPackages =
