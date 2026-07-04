@@ -67,7 +67,13 @@
           foundryvtt.nixosModules.default
 
           {
-            boot.loader.systemd-boot.enable = true;
+            boot.loader.grub = {
+              enable = true;
+              efiSupport = true;
+              efiInstallAsRemovable = false;
+              device = "nodev";
+              useOSProber = true;
+            };
             boot.loader.efi.canTouchEfiVariables = true;
             networking.hostName = "djlechuck-linux";
             system.stateVersion = "26.05";
