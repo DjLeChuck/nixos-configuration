@@ -13,6 +13,7 @@ in
     sops.secrets."gpg-private-key" = {
       sopsFile = ../secrets/gpg/private-key.asc;
       format = "binary";
+      owner = cfg.user;
     };
 
     systemd.services.gpg-import-key = {
