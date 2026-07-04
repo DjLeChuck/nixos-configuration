@@ -4,6 +4,7 @@
   imports = [
     ../../modules/vpn-work.nix
     ../../modules/vpn-home.nix
+    ../../modules/gpg.nix
   ];
 
   users.users.vdebona = {
@@ -19,4 +20,6 @@
     v13.port = 30013;
     v14.port = 30014;
   };
+
+  custom.gpgImport.user = "vdebona";
 }

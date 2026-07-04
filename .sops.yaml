@@ -72,3 +72,11 @@ creation_rules:
           #- *host_work
           - *host_vm_home
           #- *host_vm_work
+
+  # GPG Key
+  - path_regex: secrets/gpg/.*\.asc$
+    key_groups:
+      - age:
+          - *admin_djlechuck
+          - *host_home
+          #- *host_work
