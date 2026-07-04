@@ -3,7 +3,7 @@ keys:
   - &admin_djlechuck age1q7w27xhmetzu95svd92q7vmj29yhk5pcf8aeslxnduvfxsk7y3kqt4l2dd
 
   # Age key of home
-  # - &host_home age1TODO_REPLACE_AFTER_REBUILD_HOME
+  - &host_home age1rg4cgg9y2t04g00pvukafuvgm5ae90ugfjxa4yehxdq3rzgheqks46kk4r
 
   # Age key of work
   # - &host_work age1TODO_REPLACE_AFTER_REBUILD_WORK
@@ -20,7 +20,7 @@ creation_rules:
     key_groups:
       - age:
           - *admin_djlechuck
-          #- *host_home
+          - *host_home
           - *host_vm_home
 
   # Secrets specific to vm-work
@@ -36,7 +36,7 @@ creation_rules:
     key_groups:
       - age:
           - *admin_djlechuck
-          #- *host_home
+          - *host_home
 
   # Secrets specific to work
   - path_regex: secrets/work\.yaml$
@@ -50,7 +50,7 @@ creation_rules:
     key_groups:
       - age:
           - *admin_djlechuck
-          #- *host_home
+          - *host_home
           #- *host_work
           - *host_vm_home
           #- *host_vm_work
@@ -60,7 +60,7 @@ creation_rules:
     key_groups:
       - age:
           - *admin_djlechuck
-          #- *host_home
+          - *host_home
           #- *host_work
           - *host_vm_home
 
