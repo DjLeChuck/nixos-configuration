@@ -18,6 +18,7 @@ in
     libreoffice
     libwebp
     mattermost-desktop
+    meld
     pngquant
     postman
     signal-desktop

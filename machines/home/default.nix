@@ -32,10 +32,13 @@
     shell = pkgs.fish;
   };
 
-  environment.systemPackages = with pkgs; [
+  hardware.logitech.wireless.enable = true;
+
+  home-manager.users.djlechuck.home.packages = with pkgs; [
     gamescope
     lutris
     mumble
+    solaar
     wineWowPackages.stable
     winetricks
   ];
