@@ -27,10 +27,12 @@
 
   users.users.djlechuck = {
     isNormalUser = true;
+    uid = 1000;
     description = "DjLeChuck";
     extraGroups = [ "networkmanager" "wheel" "docker" "vboxusers" "foundryvtt" ];
     shell = pkgs.fish;
   };
+  users.groups.djlechuck.gid = 1000;
 
   hardware.logitech.wireless.enable = true;
 
