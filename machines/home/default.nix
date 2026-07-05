@@ -2,9 +2,11 @@
 
 {
   imports = [
-    ../../modules/vpn-work.nix
     ../../modules/gpg.nix
+    ../../modules/vpn-work.nix
   ];
+
+  custom.gpgImport.user = "djlechuck";
 
   services.foundryvtt-instances = {
     v11.port = 30011;
@@ -12,8 +14,6 @@
     v13.port = 30013;
     v14.port = 30014;
   };
-
-  custom.gpgImport.user = "djlechuck";
 
   services.xserver.videoDrivers = [ "nvidia" ];
 

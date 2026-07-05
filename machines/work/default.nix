@@ -2,10 +2,12 @@
 
 {
   imports = [
+    ../../modules/gpg.nix
     ../../modules/vpn-work.nix
     ../../modules/vpn-home.nix
-    ../../modules/gpg.nix
   ];
+
+  custom.gpgImport.user = "vdebona";
 
   users.users.vdebona = {
     isNormalUser = true;
@@ -18,5 +20,4 @@
     v14.port = 30014;
   };
 
-  custom.gpgImport.user = "vdebona";
 }

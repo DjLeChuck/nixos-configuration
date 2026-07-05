@@ -50,6 +50,23 @@ sudo nixos-rebuild test --flake .#vm-test
 sudo nixos-rebuild switch --rollback
 ```
 
+#### GPG key
+
+`modules/gpg.nix` only decrypts the sops-encrypted private key to `/run/secrets/gpg-private-key` (owned by the target user) - it does **not** import it automatically.
+
+To (re-)encrypt the key after generating/rotating it, run this yourself so the plaintext key never goes through an agent/session other than your own:
+
+```bash
+gpg --export-secret-keys --armor <KEY_ID> > secrets/gpg/private-key.asc
+sops --encrypt --in-place secrets/gpg/private-key.asc
+```
+
+After each `nixos-rebuild switch` (or on a freshly provisioned machine), import the key into the keyring manually, once:
+
+```bash
+gpg --batch --import /run/secrets/gpg-private-key
+```
+
 #### Update dependencies
 
 ```bash
