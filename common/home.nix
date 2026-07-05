@@ -9,6 +9,7 @@ in
 
   home.packages = with pkgs; [
     # bitwarden-desktop
+    brave
     gimp
     gitflow
     jetbrains.goland
