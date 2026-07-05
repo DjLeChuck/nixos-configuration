@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, claude-code, ... }:
 
 {
   imports = [
@@ -7,6 +7,8 @@
   ];
 
   custom.gpgImport.user = "djlechuck";
+
+  nixpkgs.overlays = [ claude-code.overlays.default ];
 
   services.foundryvtt-instances = {
     v11.port = 30011;
@@ -42,6 +44,7 @@
   hardware.logitech.wireless.enable = true;
 
   home-manager.users.djlechuck.home.packages = with pkgs; [
+    pkgs.claude-code
     gamescope
     lutris
     mumble

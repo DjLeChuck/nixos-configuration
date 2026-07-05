@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, claude-code, ... }:
 
 {
   imports = [
@@ -8,6 +8,8 @@
   ];
 
   custom.gpgImport.user = "vdebona";
+
+  nixpkgs.overlays = [ claude-code.overlays.default ];
 
   users.users.vdebona = {
     isNormalUser = true;
@@ -20,4 +22,7 @@
     v14.port = 30014;
   };
 
+  home-manager.users.vdebona.home.packages = with pkgs; [
+    claude-code
+  ];
 }

@@ -18,9 +18,14 @@
       url = "github:djlechuck/nixos-foundryvtt";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    claude-code = {
+      url = "github:sadjow/claude-code-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, home-manager, sops-nix, foundryvtt, ... }: {
+  outputs = { self, nixpkgs, home-manager, sops-nix, foundryvtt, claude-code, ... }: {
     nixosConfigurations = {
       # -------------------------------------------------------
       # VM VirtualBox - Home
@@ -59,6 +64,7 @@
       # -------------------------------------------------------
       home = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
+        specialArgs = { inherit claude-code; };
         modules = [
           ./common/configuration.nix
           ./machines/home/hardware-configuration.nix
@@ -94,6 +100,7 @@
       # -------------------------------------------------------
       work = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
+        specialArgs = { inherit claude-code; };
         modules = [
           ./common/configuration.nix
           ./machines/work/hardware-configuration.nix
