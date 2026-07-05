@@ -10,6 +10,7 @@ in
   home.packages = with pkgs; [
     bitwarden-desktop
     brave
+    ghostty
     gimp
     gitflow
     jetbrains.goland
@@ -25,7 +26,6 @@ in
     signal-desktop
     spotify
     symfony-cli
-    terminator
     trivy
     vlc
     wkhtmltopdf
