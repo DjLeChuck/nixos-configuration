@@ -8,6 +8,11 @@
 
   custom.gpgImport.user = "djlechuck";
 
+  fileSystems."/mnt/lechuck" = {
+    device = "/dev/disk/by-uuid/68596689-77eb-491f-b306-6676287b46d5";
+    fsType = "ext4";
+  };
+
   nixpkgs.overlays = [ claude-code.overlays.default ];
 
   services.foundryvtt-instances = {
