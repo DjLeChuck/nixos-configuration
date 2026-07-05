@@ -8,7 +8,7 @@ in
   home.stateVersion = "26.05";
 
   home.packages = with pkgs; [
-    # bitwarden-desktop
+    bitwarden-desktop
     brave
     gimp
     gitflow
@@ -271,8 +271,7 @@ in
       "*" = {
         HostKeyAlgorithms = "+ssh-rsa";
         PubkeyAcceptedKeyTypes = "+ssh-rsa";
-        # find ~ -name "*bitwarden*ssh*" 2>/dev/null
-        # IdentityAgent = "~/.bitwarden-ssh-agent.sock";
+        IdentityAgent = "~/.bitwarden-ssh-agent.sock";
         IgnoreUnknown = "AddKeysToAgent,UseKeychain";
         AddKeysToAgent = "yes";
         UseKeychain = "yes";
