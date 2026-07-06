@@ -42,6 +42,7 @@ in
       enabled-extensions =
         (map (name: pkgs.gnomeExtensions.${name}.extensionUuid) gnomeExtensionNames)
         ++ [ openvpn3SwitcherExtension.extensionUuid ];
+      always-show-log-out = true;
     };
 
     "system/proxy" = {
