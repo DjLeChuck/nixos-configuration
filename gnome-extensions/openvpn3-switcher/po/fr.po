@@ -1,0 +1,18 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: openvpn3-switcher\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: fr\n"
+
+msgid "Loading…"
+msgstr "Chargement…"
+
+msgid "Pending"
+msgstr "En attente"
+
+msgid "No openvpn3 config found"
+msgstr "Aucune configuration openvpn3 trouvée"
+
+msgid "Disconnect"
+msgstr "Déconnecter"

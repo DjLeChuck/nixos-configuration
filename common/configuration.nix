@@ -2,6 +2,7 @@
 
 let
   gnomeExtensionNames = import ./gnome-extension-names.nix;
+  openvpn3SwitcherExtension = import ../gnome-extensions/openvpn3-switcher { inherit pkgs; };
 in
 {
   imports = [
@@ -11,6 +12,7 @@ in
   sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
 
   networking.networkmanager.enable = true;
+  services.resolved.enable = true;
 
   time.timeZone = "Europe/Paris";
 
@@ -57,6 +59,7 @@ in
 
   environment.systemPackages =
     (map (name: pkgs.gnomeExtensions.${name}) gnomeExtensionNames)
+    ++ [ openvpn3SwitcherExtension ]
     ++ (with pkgs; [
       dconf-editor
       docker-compose

@@ -1,0 +1,8 @@
+{
+  "uuid": "openvpn3-switcher@djlechuck",
+  "name": "OpenVPN3 Switcher",
+  "description": "Pick the active openvpn3 session",
+  "shell-version": ["50"],
+  "gettext-domain": "openvpn3-switcher",
+  "version": 1
+}

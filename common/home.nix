@@ -3,6 +3,7 @@
 let
   variables = import ./variables.nix;
   gnomeExtensionNames = import ./gnome-extension-names.nix;
+  openvpn3SwitcherExtension = import ../gnome-extensions/openvpn3-switcher { inherit pkgs; };
 in
 {
   home.stateVersion = "26.05";
@@ -38,7 +39,9 @@ in
   dconf.settings = {
     "org/gnome/shell" = {
       disable-user-extensions = false;
-      enabled-extensions = map (name: pkgs.gnomeExtensions.${name}.extensionUuid) gnomeExtensionNames;
+      enabled-extensions =
+        (map (name: pkgs.gnomeExtensions.${name}.extensionUuid) gnomeExtensionNames)
+        ++ [ openvpn3SwitcherExtension.extensionUuid ];
     };
 
     "system/proxy" = {
