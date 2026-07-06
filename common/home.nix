@@ -92,8 +92,6 @@ in
         email = "djlechuck@gmail.com";
       };
 
-      core.excludesFile = "~/.gitignoreglobal";
-
       pull.rebase = false;
       fetch.prune = true;
       init.defaultBranch = "main";
