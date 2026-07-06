@@ -282,5 +282,6 @@ in
   home.sessionVariables = {
     EDITOR = "vim";
     VISUAL = "vim";
+    SSH_AUTH_SOCK = "${config.home.homeDirectory}/.bitwarden-ssh-agent.sock";
   };
 }
