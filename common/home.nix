@@ -145,6 +145,7 @@ in
       ".intellijPlatform/"
       "**/_akkalia.yaml"
       "**/.claude/settings.local.json"
+      ".direnv/"
     ];
   };
 
@@ -154,7 +155,7 @@ in
     enableFishIntegration = true;
 
     config = {
-      whitelist.prefix = [ "${config.home.homeDirectory}/development/php" ];
+      whitelist.prefix = [ "${variables.development}/php" ];
     };
   };
 
@@ -212,6 +213,7 @@ in
       sfp = "symfony proxy:start";
       slc = "symfony console c:c && symfony console lint:cont";
       yid = "yarn install && yarn dev";
+      phpinit = "nix flake init -t ~/.config/nixos-config#php";
     };
 
     shellAliases = {

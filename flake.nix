@@ -26,6 +26,15 @@
   };
 
   outputs = { self, nixpkgs, home-manager, sops-nix, foundryvtt, claude-code, ... }: {
+    templates = {
+      php = {
+        path = ./templates/php;
+        description = "PHP dev shell with auto-detection of PHP (.php-version) and Node/Yarn (package.json volta) versions";
+      };
+
+      default = self.templates.php;
+    };
+
     nixosConfigurations = {
       # -------------------------------------------------------
       # VM VirtualBox - Home

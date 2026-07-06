@@ -1,5 +1,8 @@
 { config, pkgs, claude-code, ... }:
 
+let
+  variables = import ../../common/variables.nix;
+in
 {
   imports = [
     ../../modules/gpg.nix
@@ -61,7 +64,7 @@
         winetricks
       ];
 
-      home.file."development".source = config.lib.file.mkOutOfStoreSymlink "/mnt/lechuck/development";
+      home.file."development".source = config.lib.file.mkOutOfStoreSymlink variables.development;
     };
 
   programs.gamemode.enable = true;
