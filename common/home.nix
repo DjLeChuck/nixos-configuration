@@ -23,6 +23,44 @@ let
       ]
     )
   );
+
+  # https://github.com/sanduhrs/phpstorm-url-handler - lets browser links like
+  # phpstorm://open?file=<path>&line=<n> (Symfony profiler, Whoops, etc.) open
+  # the file directly in PhpStorm via the desktop entry + MIME association below.
+  phpstormUrlHandler = pkgs.writeShellScriptBin "phpstorm-url-handler" ''
+    # phpstorm://open?url=file://@file&line=@line
+    # phpstorm://open?file=@file&line=@line
+    # phpstorm://open?url=file://@file:@line
+    # phpstorm://open?file=@file:line
+    #
+    # @license GPL
+    # @author Stefan Auditor <stefan@auditor.email>
+
+    function urldecode() { : "''${*//+/ }"; echo -e "''${_//%/\\x}"; }
+
+    arg=$(urldecode "''${1}")
+    pattern=".*file(:\/\/|\=)(.*)(:|&line=)(.*)"
+
+    # Get the file path.
+    file=$(echo "''${arg}" | sed -r "s/''${pattern}/\2/")
+
+    # Get the line number.
+    line=$(echo "''${arg}" | sed -r "s/''${pattern}/\4/")
+
+    # Check if phpstorm|pstorm command exists.
+    if type phpstorm > /dev/null; then
+        /usr/bin/env phpstorm --line "''${line}" "''${file}"
+    elif type pstorm > /dev/null; then
+        /usr/bin/env pstorm --line "''${line}" "''${file}"
+    fi
+
+    if type wmctrl > /dev/null; then
+        filename=$(basename "$file")
+        /usr/bin/env wmctrl -i -a $(wmctrl -l | grep "''${filename}" | tail -n 1 | cut -d ' ' -f1)
+    fi
+
+    exit 0
+  '';
 in
 {
   home.stateVersion = "26.05";
@@ -40,6 +78,7 @@ in
     libwebp
     mattermost-desktop
     meld
+    phpstormUrlHandler
     pngquant
     postman
     signal-desktop
@@ -48,11 +87,48 @@ in
     trivy
     vlc
     wkhtmltopdf
+    wmctrl
     zed-editor
   ];
 
   xdg.configFile."fish/completions/cdg.fish".text = ''
     complete -c cdg -f -a "(path basename $CDG_DIR/*/)"
+  '';
+
+  # Written by hand instead of via `xdg.desktopEntries`: that module is
+  # broken on the pinned home-manager release (it always sets the removed
+  # `extraConfig` option internally - https://github.com/nix-community/home-manager,
+  # modules/misc/xdg-desktop-entries.nix - and errors on any entry).
+  xdg.dataFile."applications/phpstorm-url-handler.desktop".text = ''
+    [Desktop Entry]
+    Version=1.0
+    Type=Application
+    Name=PhpStorm URL Handler
+    Comment=Handle URL Scheme phpstorm://open?url=file://@file&line=@line and phpstorm://open?file=@file&line=@line
+    Icon=phpstorm
+    NoDisplay=true
+    Categories=TextEditor;Utility;
+    Exec=phpstorm-url-handler %u
+    Terminal=false
+    MimeType=x-scheme-handler/phpstorm;x-scheme-handler/pstorm;x-scheme-handler/txmt;
+  '';
+
+  xdg.mimeApps = {
+    enable = true;
+    defaultApplications = {
+      "x-scheme-handler/phpstorm" = "phpstorm-url-handler.desktop";
+      "x-scheme-handler/pstorm" = "phpstorm-url-handler.desktop";
+      "x-scheme-handler/txmt" = "phpstorm-url-handler.desktop";
+    };
+  };
+
+  # mimeapps.list/xdg-mime are correct as soon as it's written, but GNOME's
+  # own app-chooser (what the browser's URL-open portal call goes through)
+  # reads applications/mimeinfo.cache instead, which is only ever rebuilt by
+  # this command - without it, new scheme handlers silently show as "no app
+  # available" until something else happens to trigger the rebuild.
+  home.activation.updateDesktopDatabase = config.lib.dag.entryAfter [ "writeBoundary" ] ''
+    $DRY_RUN_CMD ${pkgs.desktop-file-utils}/bin/update-desktop-database $VERBOSE_ARG "${config.xdg.dataHome}/applications"
   '';
 
   dconf.settings = {

@@ -112,6 +112,17 @@
             packages = [ php composer ]
               ++ nixpkgs.lib.optionals hasPackageJson [ node yarn ];
 
+            # Exported explicitly (not left to php-with-extensions' `--set-default` wrapper) so
+            # tools that themselves set PHP_INI_SCAN_DIR (e.g. Symfony CLI, to support a
+            # project-root php.ini) append to this instead of silently losing every extension
+            env.PHP_INI_SCAN_DIR = "${php}/lib";
+
+            # nixpkgs' composer binary is a compiled wrapper (makeBinaryWrapper), not a plain
+            # PHAR/PHP script, so Symfony CLI's own file sniffing rejects it and silently
+            # downloads/manages its own copy instead. SYMFONY_COMPOSER_PATH (symfony-cli#581)
+            # points it at this one directly, keeping composer pinned to the project's nixpkgs.
+            env.SYMFONY_COMPOSER_PATH = "${composer}/bin/composer";
+
             shellHook = ''
               echo "PHP:      ${php.version} (${phpAttr}${if builtins.pathExists phpVersionFile then "" else ", default"})"
               echo "Composer: ${composer.version}"
