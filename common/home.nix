@@ -32,6 +32,10 @@ in
     zed-editor
   ];
 
+  xdg.configFile."fish/completions/cdg.fish".text = ''
+    complete -c cdg -f -a "(path basename $CDG_DIR/*/)"
+  '';
+
   dconf.settings = {
     "org/gnome/shell" = {
       disable-user-extensions = false;
