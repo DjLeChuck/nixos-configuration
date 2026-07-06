@@ -20,8 +20,6 @@ let
       gitGlobalIgnores
       ++ [
         "**/.envrc"
-        "**/flake.lock"
-        "**/flake.nix"
       ]
     )
   );
@@ -244,7 +242,6 @@ in
       sfs = "symfony serve";
       slc = "symfony console c:c && symfony console lint:cont";
       yid = "yarn install && yarn dev";
-      phpinit = "nix flake init -t $NIXOS_CONFIG_DIR#php";
     };
 
     shellAliases = {
@@ -256,18 +253,17 @@ in
       # Fast cd to PHP projects
       cdg = "cd $CDG_DIR/$argv";
 
-      # Refresh this project's flake.nix from the shared PHP dev shell template
-      phpupdate = {
-        description = "Update the current project's flake.nix from the shared PHP dev shell template";
+      # Set up (or refresh) the shared PHP dev shell in the current directory.
+      # The actual flake.nix lives only in $NIXOS_CONFIG_DIR/templates/php
+      # and is referenced from there via an impure flake path, so the only
+      # file ever placed in the project is .envrc — which direnv reads
+      # straight off disk and Nix never needs, so it never needs `git add`,
+      # never shows up in `git status`, and never has to be committed.
+      phpinit = {
+        description = "Set up (or refresh) the shared PHP dev shell in the current directory";
         body = ''
-          if not test -f .envrc
-            echo "No .envrc found here — run 'phpinit' first."
-            return 1
-          end
-
-          cp $NIXOS_CONFIG_DIR/templates/php/flake.nix ./flake.nix
-          git add flake.nix
-          direnv reload
+          cp $NIXOS_CONFIG_DIR/templates/php/.envrc ./.envrc
+          direnv allow
         '';
       };
 

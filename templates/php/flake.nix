@@ -11,7 +11,17 @@
       forEachSystem = f: nixpkgs.lib.genAttrs systems (system: f system);
 
       defaultPhpAttr = "php84";
-      phpVersionFile = ./. + "/.php-version";
+
+      # This flake lives in nixos-config and is shared by every PHP project
+      # via `use flake $NIXOS_CONFIG_DIR/templates/php --impure` in each
+      # project's own .envrc — so it never needs a flake.nix/.envrc copied
+      # (or git-tracked) inside the project itself. `./.` would resolve to
+      # this flake's own source dir, not the calling project, hence PWD.
+      projectDir =
+        let pwd = builtins.getEnv "PWD"; in
+        if pwd != "" then pwd else toString ./.;
+
+      phpVersionFile = projectDir + "/.php-version";
 
       phpAttrName = pkgs:
         if builtins.pathExists phpVersionFile then
@@ -36,7 +46,7 @@
         else
           defaultPhpAttr;
 
-      packageJsonFile = ./. + "/package.json";
+      packageJsonFile = projectDir + "/package.json";
       hasPackageJson = builtins.pathExists packageJsonFile;
       packageJson = if hasPackageJson then builtins.fromJSON (builtins.readFile packageJsonFile) else { };
       volta = packageJson.volta or { };
