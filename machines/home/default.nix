@@ -65,6 +65,13 @@ in
       ];
 
       home.file."development".source = config.lib.file.mkOutOfStoreSymlink variables.development;
+
+      # networking.hostName ("djlechuck-linux") doesn't match this flake's
+      # nixosConfigurations attribute name ("home"), so `nh os` can't infer
+      # it automatically — pin it explicitly.
+      programs.fish.interactiveShellInit = ''
+        set -gx NH_OS_FLAKE "$NIXOS_CONFIG_DIR#home"
+      '';
     };
 
   programs.gamemode.enable = true;

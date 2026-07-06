@@ -174,6 +174,8 @@ in
       set -gx EDITOR vim
       set -gx CDG_DIR ~/development/php
       set -gx GPG_TTY (tty)
+      set -gx NIXOS_CONFIG_DIR ~/.config/nixos-config
+      set -gx NH_FLAKE $NIXOS_CONFIG_DIR
 
       # Colors (custom theme)
       set -g fish_color_autosuggestion 969896
@@ -217,7 +219,7 @@ in
       sfp = "symfony proxy:start";
       slc = "symfony console c:c && symfony console lint:cont";
       yid = "yarn install && yarn dev";
-      phpinit = "nix flake init -t ~/.config/nixos-config#php";
+      phpinit = "nix flake init -t $NIXOS_CONFIG_DIR#php";
     };
 
     shellAliases = {
