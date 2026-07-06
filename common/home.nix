@@ -96,7 +96,7 @@ in
       rerere.enabled = true;
       lfs.locksverify = true;
 
-      credential.helper = "${pkgs.gitFull}/lib/git-core/git-credential-libsecret";
+      credential.helper = "${pkgs.gitFull}/bin/git-credential-libsecret";
 
       alias = {
         di = "diff -D";
