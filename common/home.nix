@@ -152,6 +152,11 @@ in
     "org/gnome/desktop/wm/keybindings" = {
       begin-move = [ ];
     };
+
+    "org/gnome/shell/extensions/dash-to-dock" = {
+      running-indicator-style = "DOTS";
+      click-action = "minimize-or-previews";
+    };
   };
 
   programs.gpg.enable = true;
