@@ -42,6 +42,10 @@ in
       mode = "auto";
       autoconfig-url = "http://127.0.0.1:7080/proxy.pac";
     };
+
+    "org/gnome/desktop/wm/preferences" = {
+      button-layout = "appmenu:minimize,maximize,close";
+    };
   };
 
   programs.gpg.enable = true;
