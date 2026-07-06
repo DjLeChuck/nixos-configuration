@@ -10,5 +10,4 @@
   "quick-settings-audio-devices-hider"
   "quick-settings-audio-devices-renamer"
   "steal-my-focus-window"
-  "tiling-assistant"
 ]
