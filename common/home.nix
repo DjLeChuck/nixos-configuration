@@ -10,7 +10,6 @@ in
   home.packages = with pkgs; [
     bitwarden-desktop
     brave
-    ghostty
     gimp
     gitflow
     jetbrains.goland
@@ -75,6 +74,14 @@ in
     };
 
     Install.WantedBy = [ "default.target" ];
+  };
+
+  programs.ghostty = {
+    enable = true;
+
+    settings = {
+      background-opacity = 0.8;
+    };
   };
 
   programs.git = {
