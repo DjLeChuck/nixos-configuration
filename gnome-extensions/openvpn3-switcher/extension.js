@@ -19,6 +19,9 @@ Gio._promisify(
 const ICON_CONNECTED = "network-vpn-symbolic";
 const ICON_PENDING = "network-vpn-acquiring-symbolic";
 const ICON_DISCONNECTED = "network-vpn-disabled-symbolic";
+// While a session is pending (auth started but not yet "Client connected"),
+// poll at this cadence so the icon updates without the user reopening the menu.
+const POLL_INTERVAL_MS = 3000;
 
 async function runOpenvpn3(args) {
   const proc = Gio.Subprocess.new(
@@ -101,6 +104,7 @@ const OpenVPN3Indicator = GObject.registerClass(
       super._init(0.5, "OpenVPN3 Switcher", false);
 
       this._busy = false;
+      this._pollTimerId = null;
       this._icon = new St.Icon({
         icon_name: ICON_DISCONNECTED,
         style_class: "system-status-icon",
@@ -125,6 +129,8 @@ const OpenVPN3Indicator = GObject.registerClass(
             logError(e, "openvpn3-switcher refresh failed"),
           );
       });
+
+      this.connect("destroy", () => this._stopPolling());
     }
 
     async _refresh() {
@@ -145,6 +151,12 @@ const OpenVPN3Indicator = GObject.registerClass(
           : pendingNames.length > 0
             ? ICON_PENDING
             : ICON_DISCONNECTED;
+
+      // Keep polling only while something is genuinely in-flight; every other
+      // call site (menu open, end of _switchTo/_disconnectAll) already calls
+      // _refresh(), so this is the single place that decides start vs. stop.
+      if (pendingNames.length > 0) this._startPolling();
+      else this._stopPolling();
 
       if (names.length === 0) {
         this.menu.addMenuItem(
@@ -173,6 +185,21 @@ const OpenVPN3Indicator = GObject.registerClass(
         disconnectItem.connect("activate", () => this._disconnectAll(statuses));
         this.menu.addMenuItem(disconnectItem);
       }
+    }
+
+    _startPolling() {
+      if (this._pollTimerId !== null) return;
+      this._pollTimerId = setInterval(() => {
+        this._refresh().catch((e) =>
+          logError(e, "openvpn3-switcher poll refresh failed"),
+        );
+      }, POLL_INTERVAL_MS);
+    }
+
+    _stopPolling() {
+      if (this._pollTimerId === null) return;
+      clearInterval(this._pollTimerId);
+      this._pollTimerId = null;
     }
 
     async _switchTo(targetName, statuses) {
