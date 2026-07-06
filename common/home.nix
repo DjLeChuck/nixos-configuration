@@ -49,6 +49,10 @@ in
     "org/gnome/desktop/wm/preferences" = {
       button-layout = "appmenu:minimize,maximize,close";
     };
+
+    "org/gnome/desktop/wm/keybindings" = {
+      begin-move = [ ];
+    };
   };
 
   programs.gpg.enable = true;
