@@ -4,6 +4,27 @@ let
   variables = import ./variables.nix;
   gnomeExtensionNames = import ./gnome-extension-names.nix;
   openvpn3SwitcherExtension = import ../gnome-extensions/openvpn3-switcher { inherit pkgs; };
+
+  gitGlobalIgnores = [
+    ".idea/"
+    ".intellijPlatform/"
+    "**/_akkalia.yaml"
+    "**/.claude/settings.local.json"
+    ".direnv/"
+  ];
+  # core.excludesFile patterns are always anchored at the repo root, never at
+  # an absolute filesystem path, so scoping to ~/development needs a gitdir
+  # includeIf (below) pointing at this separate, superset ignore file.
+  gitDevelopmentIgnoreFile = pkgs.writeText "gitignore-development" (
+    pkgs.lib.concatMapStrings (pattern: pattern + "\n") (
+      gitGlobalIgnores
+      ++ [
+        "**/.envrc"
+        "**/flake.lock"
+        "**/flake.nix"
+      ]
+    )
+  );
 in
 {
   home.stateVersion = "26.05";
@@ -146,15 +167,13 @@ in
           };
         };
       }
+      {
+        condition = "gitdir:~/development/**";
+        contents.core.excludesFile = "${gitDevelopmentIgnoreFile}";
+      }
     ];
 
-    ignores = [
-      ".idea/"
-      ".intellijPlatform/"
-      "**/_akkalia.yaml"
-      "**/.claude/settings.local.json"
-      ".direnv/"
-    ];
+    ignores = gitGlobalIgnores;
   };
 
   programs.direnv = {
