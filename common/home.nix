@@ -113,6 +113,24 @@ in
     MimeType=x-scheme-handler/phpstorm;x-scheme-handler/pstorm;x-scheme-handler/txmt;
   '';
 
+  # Overrides the package's own Mattermost.desktop (same filename, so it
+  # shadows it) to add StartupWMClass: recent Electron versions changed the
+  # window's WM_CLASS to "Mattermost.Desktop", and without this GNOME Shell
+  # can't match the running window back to this app, so the dock/taskbar
+  # falls back to a generic "icon not found" placeholder.
+  xdg.dataFile."applications/Mattermost.desktop".text = ''
+    [Desktop Entry]
+    Name=Mattermost
+    Comment=Mattermost Desktop application for Linux
+    Exec="${pkgs.mattermost-desktop}/bin/mattermost-desktop" %U
+    Terminal=false
+    Type=Application
+    MimeType=x-scheme-handler/mattermost
+    Icon=mattermost-desktop
+    Categories=Network;InstantMessaging;
+    StartupWMClass=Mattermost.Desktop
+  '';
+
   xdg.mimeApps = {
     enable = true;
     defaultApplications = {
