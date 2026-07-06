@@ -58,13 +58,32 @@
       # corepack pinned to the exact volta.yarn version, so `yarn` in the
       # shell transparently matches what the team already uses.
       yarnIsClassic = !(volta ? yarn) || nixpkgs.lib.strings.hasPrefix "1." volta.yarn;
+
+      # Default extension panel for every project, on top of nixpkgs' own
+      # sane defaults (openssl, pdo, session, sockets, ctype, fileinfo, xml, ...).
+      extraPhpExtensions = with_all: with with_all; [
+        amqp
+        bcmath
+        curl
+        gd
+        imagick
+        intl
+        ldap
+        mbstring
+        mysqli
+        pdo_mysql
+        pdo_pgsql
+        pgsql
+        xdebug
+        zip
+      ];
     in
     {
       devShells = forEachSystem (system:
         let
           pkgs = import nixpkgs { inherit system; };
           phpAttr = phpAttrName pkgs;
-          php = pkgs.${phpAttr};
+          php = pkgs.${phpAttr}.withExtensions ({ enabled, all }: enabled ++ (extraPhpExtensions all));
           composer = pkgs.${phpAttr + "Packages"}.composer;
           nodeAttr = nodeAttrName pkgs;
           node = pkgs.${nodeAttr};

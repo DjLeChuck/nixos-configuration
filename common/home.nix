@@ -256,6 +256,21 @@ in
       # Fast cd to PHP projects
       cdg = "cd $CDG_DIR/$argv";
 
+      # Refresh this project's flake.nix from the shared PHP dev shell template
+      phpupdate = {
+        description = "Update the current project's flake.nix from the shared PHP dev shell template";
+        body = ''
+          if not test -f .envrc
+            echo "No .envrc found here — run 'phpinit' first."
+            return 1
+          end
+
+          cp $NIXOS_CONFIG_DIR/templates/php/flake.nix ./flake.nix
+          git add flake.nix
+          direnv reload
+        '';
+      };
+
       # sudo !! support
       sudo = {
         description = "Replacement for Bash 'sudo !!' command to run last command using sudo.";
