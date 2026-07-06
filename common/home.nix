@@ -88,7 +88,7 @@ in
     enable = true;
 
     settings = {
-      background-opacity = 0.8;
+      background-opacity = 0.9;
     };
   };
 
