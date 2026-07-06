@@ -48,15 +48,21 @@
 
   hardware.logitech.wireless.enable = true;
 
-  home-manager.users.djlechuck.home.packages = with pkgs; [
-    pkgs.claude-code
-    gamescope
-    lutris
-    mumble
-    solaar
-    wineWow64Packages.stable
-    winetricks
-  ];
+  home-manager.users.djlechuck =
+    { config, pkgs, ... }:
+    {
+      home.packages = with pkgs; [
+        pkgs.claude-code
+        gamescope
+        lutris
+        mumble
+        solaar
+        wineWow64Packages.stable
+        winetricks
+      ];
+
+      home.file."development".source = config.lib.file.mkOutOfStoreSymlink "/mnt/lechuck/development";
+    };
 
   programs.gamemode.enable = true;
 
