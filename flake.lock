@@ -46,11 +46,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1783338624,
-        "narHash": "sha256-5PJuANvAaWiaMy3WzDYXIYDwtw8ifnx+yicHXwKtcUc=",
+        "lastModified": 1783371247,
+        "narHash": "sha256-bdSWN3M35kWLf6PHhLbwJL0//6asilgWzhcPHdrc59Q=",
         "owner": "djlechuck",
         "repo": "nixos-foundryvtt",
-        "rev": "106cc06cb6adab2ff635aa9907e8374bf048359d",
+        "rev": "28bc227fda7a93dbb25895ac36a4d55bcb0eddda",
         "type": "github"
       },
       "original": {

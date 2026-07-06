@@ -24,6 +24,7 @@ in
     v13.port = 30013;
     v14.port = 30014;
   };
+  services.foundryvtt-gnome-extension.enable = true;
 
   services.xserver.videoDrivers = [ "nvidia" ];
 
@@ -44,7 +45,7 @@ in
     isNormalUser = true;
     uid = 1000;
     description = "DjLeChuck";
-    extraGroups = [ "networkmanager" "wheel" "docker" "vboxusers" "foundryvtt" ];
+    extraGroups = [ "networkmanager" "wheel" "docker" "vboxusers" "foundryvtt" "foundryvtt-control" ];
     shell = pkgs.fish;
   };
   users.groups.djlechuck.gid = 1000;

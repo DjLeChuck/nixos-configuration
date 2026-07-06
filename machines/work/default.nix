@@ -14,13 +14,14 @@
   users.users.vdebona = {
     isNormalUser = true;
     description = "Vivien DE BONA";
-    extraGroups = [ "networkmanager" "wheel" "docker" "foundryvtt" ];
+    extraGroups = [ "networkmanager" "wheel" "docker" "foundryvtt" "foundryvtt-control" ];
     shell = pkgs.fish;
   };
 
   services.foundryvtt-instances = {
     v14.port = 30014;
   };
+  services.foundryvtt-gnome-extension.enable = true;
 
   home-manager.users.vdebona.home.packages = with pkgs; [
     claude-code
