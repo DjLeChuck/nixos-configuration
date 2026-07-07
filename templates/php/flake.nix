@@ -88,13 +88,22 @@
         xsl
         zip
       ];
+
+      # Default php.ini directives for every project.
+      extraPhpIni = ''
+        date.timezone = Europe/Paris
+        memory_limit = 512M
+      '';
     in
     {
       devShells = forEachSystem (system:
         let
           pkgs = import nixpkgs { inherit system; };
           phpAttr = phpAttrName pkgs;
-          php = pkgs.${phpAttr}.withExtensions ({ enabled, all }: enabled ++ (extraPhpExtensions all));
+          php = pkgs.${phpAttr}.buildEnv {
+            extensions = ({ enabled, all }: enabled ++ (extraPhpExtensions all));
+            extraConfig = extraPhpIni;
+          };
           composer = pkgs.${phpAttr + "Packages"}.composer;
           nodeAttr = nodeAttrName pkgs;
           node = pkgs.${nodeAttr};
