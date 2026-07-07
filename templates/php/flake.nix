@@ -85,6 +85,7 @@
         pdo_pgsql
         pgsql
         xdebug
+        xsl
         zip
       ];
     in
