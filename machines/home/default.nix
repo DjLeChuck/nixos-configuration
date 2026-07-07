@@ -1,4 +1,4 @@
-{ config, pkgs, claude-code, ... }:
+{ config, lib, pkgs, claude-code, ... }:
 
 let
   variables = import ../../common/variables.nix;
@@ -10,6 +10,11 @@ in
   ];
 
   custom.gpgImport.user = "djlechuck";
+
+  # Keep the profile configured (so it's ready when needed) but don't
+  # auto-join it on this machine, unlike the other machines using it.
+  networking.networkmanager.ensureProfiles.profiles."wifi-home".connection.autoconnect =
+    lib.mkForce false;
 
   fileSystems."/mnt/lechuck" = {
     device = "/dev/disk/by-uuid/68596689-77eb-491f-b306-6676287b46d5";
