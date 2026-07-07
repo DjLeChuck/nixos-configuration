@@ -67,6 +67,42 @@ After each `nixos-rebuild switch` (or on a freshly provisioned machine), import 
 gpg --batch --import /run/secrets/gpg-private-key
 ```
 
+#### Private GitLab tools
+
+`pkgs/private-tools.nix` fetches prebuilt CLI binaries from the company's
+private GitLab. Neither the repo URLs nor the auth token are ever committed
+in clear: URLs live in `common/variables.nix` (local-only, `skip-worktree`),
+the token lives encrypted in `secrets/private-tools.yaml` (sops).
+
+One-time setup:
+
+```bash
+# Create/edit the encrypted token (scope: read_api)
+sops secrets/private-tools.yaml
+# -> gitlab_tools_token: <PAT>
+```
+
+Fill in the real `privateTools` URLs/host in `common/variables.nix` (kept
+local by `skip-worktree`, see `git ignored`).
+
+`modules/private-tools.nix` feeds the decrypted token into `nix-daemon`'s own
+systemd environment, since builds run through the daemon rather than the
+interactive shell. That means on first rollout the daemon needs to pick up
+the new `EnvironmentFile` *before* the tool packages can build:
+
+```bash
+# 1) First switch: only wires the secret into nix-daemon's environment
+sudo nixos-rebuild switch --flake .#home
+
+# 2) Second switch: now nix-daemon has GITLAB_TOOLS_TOKEN, the fetchurl
+#    derivations in pkgs/private-tools.nix can authenticate
+sudo nixos-rebuild switch --flake .#home
+```
+
+To pin a real `sha256` for a tool, start with `pkgs.lib.fakeSha256`, let the
+build fail, then copy the "got:" hash reported by Nix into `variables.nix`.
+Repeat whenever a tool's URL/version changes.
+
 #### Update dependencies
 
 ```bash

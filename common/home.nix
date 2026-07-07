@@ -4,6 +4,7 @@ let
   variables = import ./variables.nix;
   gnomeExtensionNames = import ./gnome-extension-names.nix;
   openvpn3SwitcherExtension = import ../gnome-extensions/openvpn3-switcher { inherit pkgs; };
+  privateTools = import ../pkgs/private-tools.nix { inherit pkgs variables; };
 
   gitGlobalIgnores = [
     ".idea/"
@@ -81,6 +82,8 @@ in
     phpstormUrlHandler
     pngquant
     postman
+    privateTools.lock-excel
+    privateTools.excel2jsonl
     signal-desktop
     spotify
     symfony-cli

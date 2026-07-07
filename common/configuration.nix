@@ -6,6 +6,7 @@ let
 in
 {
   imports = [
+    ../modules/private-tools.nix
     ../modules/wifi-home.nix
   ];
 
