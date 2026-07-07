@@ -76,14 +76,22 @@
         bcmath
         curl
         gd
+        igbinary
         imagick
+        imap
         intl
         ldap
         mbstring
+        memcached
+        msgpack
         mysqli
+        opentelemetry
         pdo_mysql
         pdo_pgsql
         pgsql
+        ssh2
+        sysvmsg
+        sysvshm
         xdebug
         xsl
         zip
@@ -93,6 +101,10 @@
       extraPhpIni = ''
         date.timezone = Europe/Paris
         memory_limit = 512M
+
+        ; xdebug stays installed but inactive (near-zero overhead) unless
+        ; explicitly requested, e.g. `XDEBUG_MODE=debug php ...` or per-IDE run config.
+        xdebug.mode = off
       '';
     in
     {
