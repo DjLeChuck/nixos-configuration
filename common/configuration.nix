@@ -14,6 +14,15 @@ in
   networking.networkmanager.enable = true;
   services.resolved.enable = true;
 
+  # Hibernation (and the automatic suspend-then-hibernate escalation after a
+  # long sleep) reliably hangs on resume, requiring a hard reboot. Disabling
+  # it entirely keeps the system on plain suspend, which resumes fine.
+  systemd.sleep.settings.Sleep = {
+    AllowHibernation = false;
+    AllowSuspendThenHibernate = false;
+    AllowHybridSleep = false;
+  };
+
   time.timeZone = "Europe/Paris";
 
   i18n.defaultLocale = "fr_FR.UTF-8";
