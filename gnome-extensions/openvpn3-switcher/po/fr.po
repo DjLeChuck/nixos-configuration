@@ -16,3 +16,12 @@ msgstr "Aucune configuration openvpn3 trouvée"
 
 msgid "Disconnect"
 msgstr "Déconnecter"
+
+msgid "VPN connected"
+msgstr "VPN connecté"
+
+msgid "VPN disconnected"
+msgstr "VPN déconnecté"
+
+msgid "VPN connection failed"
+msgstr "Échec de connexion VPN"

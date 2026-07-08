@@ -20,8 +20,11 @@ const ICON_CONNECTED = "network-vpn-symbolic";
 const ICON_PENDING = "network-vpn-acquiring-symbolic";
 const ICON_DISCONNECTED = "network-vpn-disabled-symbolic";
 // While a session is pending (auth started but not yet "Client connected"),
-// poll at this cadence so the icon updates without the user reopening the menu.
-const POLL_INTERVAL_MS = 3000;
+// poll fast so the icon updates without the user reopening the menu. Once
+// connected, polling only needs to watch for an unexpected drop, so it can
+// run much less often.
+const PENDING_POLL_INTERVAL_MS = 3000;
+const CONNECTED_POLL_INTERVAL_MS = 30000;
 
 async function runOpenvpn3(args) {
   const proc = Gio.Subprocess.new(
@@ -105,6 +108,14 @@ const OpenVPN3Indicator = GObject.registerClass(
 
       this._busy = false;
       this._pollTimerId = null;
+      this._pollIntervalMs = null;
+      // Baseline session status from the previous refresh, used to detect
+      // connect/disconnect transitions worth notifying about. null means
+      // "no baseline yet" so the first-ever refresh never notifies on
+      // whatever state already existed before the extension enabled.
+      this._knownStatus = null;
+      this._refreshing = false;
+      this._refreshQueued = false;
       this._icon = new St.Icon({
         icon_name: ICON_DISCONNECTED,
         style_class: "system-status-icon",
@@ -133,10 +144,47 @@ const OpenVPN3Indicator = GObject.registerClass(
       this.connect("destroy", () => this._stopPolling());
     }
 
+    // Thin wrapper serializing concurrent calls: _doRefresh() spans multiple
+    // awaits (two subprocess round trips) and is called from several places
+    // (menu open, end of _switchTo/_disconnectAll, and the poll timer) that
+    // can now overlap for the entire lifetime of a connection rather than
+    // just a brief window, so two overlapping runs could otherwise write
+    // this._knownStatus out of order and fire a wrong notification. Queueing
+    // a single follow-up run (rather than dropping the request) still
+    // guarantees callers like _switchTo's `finally` get a fresh render.
     async _refresh() {
+      if (this._refreshing) {
+        this._refreshQueued = true;
+        return;
+      }
+      this._refreshing = true;
+      try {
+        await this._doRefresh();
+      } finally {
+        this._refreshing = false;
+        if (this._refreshQueued) {
+          this._refreshQueued = false;
+          this._refresh();
+        }
+      }
+    }
+
+    async _doRefresh() {
       this.menu.removeAll();
       const names = await listConfigNames();
       const statuses = await getSessionStatuses();
+
+      const oldStatus = this._knownStatus;
+      this._knownStatus = statuses;
+      if (oldStatus !== null) {
+        const allNames = new Set([...oldStatus.keys(), ...statuses.keys()]);
+        for (const name of allNames) {
+          const was = isConnected(oldStatus.get(name) ?? "");
+          const now = isConnected(statuses.get(name) ?? "");
+          if (!was && now) Main.notify(_("VPN connected"), name);
+          else if (was && !now) Main.notify(_("VPN disconnected"), name);
+        }
+      }
 
       const connectedNames = names.filter((name) =>
         isConnected(statuses.get(name) ?? ""),
@@ -155,7 +203,12 @@ const OpenVPN3Indicator = GObject.registerClass(
       // Keep polling only while something is genuinely in-flight; every other
       // call site (menu open, end of _switchTo/_disconnectAll) already calls
       // _refresh(), so this is the single place that decides start vs. stop.
-      if (pendingNames.length > 0) this._startPolling();
+      // Fast while pending (auth window, responsiveness matters), slow once
+      // fully connected (just watching for a drop).
+      if (pendingNames.length > 0)
+        this._startPolling(PENDING_POLL_INTERVAL_MS);
+      else if (connectedNames.length > 0)
+        this._startPolling(CONNECTED_POLL_INTERVAL_MS);
       else this._stopPolling();
 
       if (names.length === 0) {
@@ -187,19 +240,23 @@ const OpenVPN3Indicator = GObject.registerClass(
       }
     }
 
-    _startPolling() {
-      if (this._pollTimerId !== null) return;
+    _startPolling(intervalMs) {
+      if (this._pollTimerId !== null && this._pollIntervalMs === intervalMs)
+        return;
+      this._stopPolling();
+      this._pollIntervalMs = intervalMs;
       this._pollTimerId = setInterval(() => {
         this._refresh().catch((e) =>
           logError(e, "openvpn3-switcher poll refresh failed"),
         );
-      }, POLL_INTERVAL_MS);
+      }, intervalMs);
     }
 
     _stopPolling() {
       if (this._pollTimerId === null) return;
       clearInterval(this._pollTimerId);
       this._pollTimerId = null;
+      this._pollIntervalMs = null;
     }
 
     async _switchTo(targetName, statuses) {
@@ -227,6 +284,7 @@ const OpenVPN3Indicator = GObject.registerClass(
             new Error(stderr),
             `openvpn3 session-start failed for ${targetName}`,
           );
+          Main.notify(_("VPN connection failed"), targetName);
         } else {
           // Give instant feedback rather than waiting for the full refresh
           // below, which can take a few seconds while polling for the auth URL.
