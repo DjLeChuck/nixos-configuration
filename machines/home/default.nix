@@ -40,6 +40,7 @@ in
     open = false;
     nvidiaSettings = true;
     package = config.boot.kernelPackages.nvidiaPackages.stable;
+    powerManagement.enable = true;
   };
   hardware.graphics.enable32Bit = true;
 

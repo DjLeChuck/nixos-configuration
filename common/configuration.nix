@@ -15,9 +15,9 @@ in
   networking.networkmanager.enable = true;
   services.resolved.enable = true;
 
-  # Hibernation (and the automatic suspend-then-hibernate escalation after a
-  # long sleep) reliably hangs on resume, requiring a hard reboot. Disabling
-  # it entirely keeps the system on plain suspend, which resumes fine.
+  # Keep hibernation/suspend-then-hibernate disabled as a safety net on hosts with
+  # swap. Not the cause of GPU freezes on resume from plain suspend on `home` — see
+  # hardware.nvidia.powerManagement in machines/home/default.nix for that fix.
   systemd.sleep.settings.Sleep = {
     AllowHibernation = false;
     AllowSuspendThenHibernate = false;
