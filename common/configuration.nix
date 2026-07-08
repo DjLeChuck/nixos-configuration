@@ -10,6 +10,10 @@ in
     ../modules/wifi-home.nix
   ];
 
+  nixpkgs.overlays = [
+    (import ../overlays/symfony-cli-php-reload-fix.nix)
+  ];
+
   sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
 
   networking.networkmanager.enable = true;

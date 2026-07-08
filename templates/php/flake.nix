@@ -146,12 +146,6 @@
             env.SYMFONY_COMPOSER_PATH = "${composer}/bin/composer";
 
             shellHook = ''
-              # symfony-cli caches its PHP discovery globally (~/.config/symfony-cli)
-              # with no staleness check against $PATH, so `symfony php`/`symfony console`
-              # keep running whatever binary was cached from a previously-active
-              # project (symfony-cli/phpstore, store.go).
-              # Force a fresh scan on every shell entry instead.
-              command -v symfony >/dev/null 2>&1 && symfony local:php:refresh >/dev/null 2>&1
               echo "PHP:      ${php.version} (${phpAttr}${if builtins.pathExists phpVersionFile then "" else ", default"})"
               echo "Composer: ${composer.version}"
             '' + nixpkgs.lib.optionalString hasPackageJson ''
