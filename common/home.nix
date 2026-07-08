@@ -62,6 +62,28 @@ let
 
     exit 0
   '';
+
+  # PhpStorm's Node.js plugin (Settings | Languages & Frameworks | Node.js) needs a fixed
+  # interpreter path, but node/yarn come from the shared PHP flake template (see
+  # ../templates/php/flake.nix) and differ per project. These wrappers resolve to the right
+  # binary for whatever project directory they're run from, via the NODE_BIN/YARN_BIN cache
+  # that flake's shellHook writes to .direnv/{node,yarn}_bin — so a single stable path can be
+  # configured once in the IDE and reused across every project using that flake. Falls back to
+  # `direnv exec` (slower, but self-healing) if the cache hasn't been populated yet.
+  nodeDirenv = pkgs.writeShellScriptBin "node-direnv" ''
+    cache="$PWD/.direnv/node_bin"
+    if [ -s "$cache" ]; then
+      exec "$(cat "$cache")" "$@"
+    fi
+    exec ${pkgs.direnv}/bin/direnv exec "$PWD" node "$@"
+  '';
+  yarnDirenv = pkgs.writeShellScriptBin "yarn-direnv" ''
+    cache="$PWD/.direnv/yarn_bin"
+    if [ -s "$cache" ]; then
+      exec "$(cat "$cache")" "$@"
+    fi
+    exec ${pkgs.direnv}/bin/direnv exec "$PWD" yarn "$@"
+  '';
 in
 {
   home.stateVersion = "26.05";
@@ -79,6 +101,7 @@ in
     libwebp
     mattermost-desktop
     meld
+    nodeDirenv
     phpstormUrlHandler
     pngquant
     postman
@@ -91,6 +114,7 @@ in
     vlc
     wkhtmltopdf
     wmctrl
+    yarnDirenv
     zed-editor
   ];
 

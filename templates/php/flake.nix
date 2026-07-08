@@ -145,12 +145,26 @@
             # points it at this one directly, keeping composer pinned to the project's nixpkgs.
             env.SYMFONY_COMPOSER_PATH = "${composer}/bin/composer";
 
+            # Resolved node/yarn store paths, cached to .direnv/{node,yarn}_bin by the shellHook
+            # below so external tools (e.g. a PhpStorm Node interpreter wrapper) can read the
+            # right binary for this project without invoking direnv on every call.
+            #
+            # Not named NODE_BIN/YARN_BIN: Yarn Berry treats any YARN_-prefixed env var as a
+            # config override (YARN_BIN -> setting "bin"), which doesn't exist and makes every
+            # yarn command fail with "Invalid configuration key \"bin\"". Prefixing both with
+            # NIX_ keeps node/yarn naming symmetric and out of either tool's env namespace.
+            env.NIX_NODE_BIN = "${node}/bin/node";
+            env.NIX_YARN_BIN = "${yarn}/bin/yarn";
+
             shellHook = ''
               echo "PHP:      ${php.version} (${phpAttr}${if builtins.pathExists phpVersionFile then "" else ", default"})"
               echo "Composer: ${composer.version}"
             '' + nixpkgs.lib.optionalString hasPackageJson ''
               echo "Node:     ${node.version} (${nodeAttr}${if volta ? node then "" else ", default"})"
               echo "Yarn:     ${yarnLabel}"
+              mkdir -p .direnv
+              printf '%s' "$NIX_NODE_BIN" > .direnv/node_bin
+              printf '%s' "$NIX_YARN_BIN" > .direnv/yarn_bin
             '';
           };
         });
