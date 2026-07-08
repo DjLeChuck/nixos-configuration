@@ -205,6 +205,70 @@ in
     Install.WantedBy = [ "default.target" ];
   };
 
+  # Nix flakes have no per-package update notifications like apt/GNOME
+  # Software: every installed program comes from whichever nixpkgs commit is
+  # pinned in flake.lock, so "updates" only exist relative to that pin (and
+  # the other flake inputs: home-manager, sops-nix, foundryvtt, claude-code).
+  # This periodically compares each input's locked rev to its remote branch
+  # HEAD and nudges via a desktop notification when any have diverged.
+  systemd.user.services.nixpkgs-update-check = {
+    Unit.Description = "Check for available flake input updates";
+
+    Service = {
+      Type = "oneshot";
+      ExecStart = pkgs.writeShellScript "nixpkgs-update-check" ''
+        set -euo pipefail
+
+        flake_dir="$HOME/.config/nixos-config"
+        outdated=()
+
+        while IFS=$'\t' read -r name owner repo rev ref; do
+          if [ "$ref" = "HEAD" ]; then
+            query="HEAD"
+          else
+            query="refs/heads/$ref"
+          fi
+
+          latest=$(${pkgs.git}/bin/git ls-remote "https://github.com/$owner/$repo" "$query" | cut -f1)
+
+          if [ -n "$latest" ] && [ "$latest" != "$rev" ]; then
+            outdated+=("$name")
+          fi
+        done < <(${pkgs.jq}/bin/jq -r '
+          .nodes as $nodes
+          | $nodes.root.inputs
+          | to_entries[]
+          | .key as $name
+          | $nodes[.value].locked as $l
+          | select($l.type == "github")
+          | [$name, $l.owner, $l.repo, $l.rev, ($nodes[.value].original.ref // "HEAD")]
+          | @tsv
+        ' "$flake_dir/flake.lock")
+
+        if [ ''${#outdated[@]} -gt 0 ]; then
+          ${pkgs.libnotify}/bin/notify-send \
+            --icon=software-update-available \
+            "Mise à jour NixOS disponible" \
+            "Inputs en retard : ''${outdated[*]}. Lance : nh os switch -u"
+        fi
+      '';
+    };
+  };
+
+  systemd.user.timers.nixpkgs-update-check = {
+    Unit.Description = "Daily check for available flake input updates";
+
+    Timer = {
+      OnCalendar = [
+        "*-*-* 09:30:00"
+        "*-*-* 14:30:00"
+      ];
+      Persistent = true;
+    };
+
+    Install.WantedBy = [ "timers.target" ];
+  };
+
   programs.ghostty = {
     enable = true;
 
