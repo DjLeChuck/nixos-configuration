@@ -79,6 +79,9 @@
               efiInstallAsRemovable = false;
               device = "nodev";
               useOSProber = true;
+              # Native 4K resolution makes GRUB's fixed-size font tiny; a
+              # lower resolution keeps text readable (upscaled by the panel).
+              gfxmodeEfi = "1920x1080;auto";
             };
             boot.loader.efi.canTouchEfiVariables = true;
             networking.hostName = "djlechuck-linux";
