@@ -74,6 +74,17 @@ in
 
       home.file."development".source = config.lib.file.mkOutOfStoreSymlink variables.development;
 
+      xdg.configFile."autostart/solaar.desktop".text = ''
+        [Desktop Entry]
+        Name=Solaar
+        Comment=Logitech Unifying Receiver peripherals manager
+        Exec=solaar --window=hide
+        Icon=solaar
+        Terminal=false
+        Type=Application
+        Categories=Utility;GTK;
+      '';
+
       # networking.hostName ("djlechuck-linux") doesn't match this flake's
       # nixosConfigurations attribute name ("home"), so `nh os` can't infer
       # it automatically — pin it explicitly.
