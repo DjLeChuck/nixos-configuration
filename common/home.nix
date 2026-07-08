@@ -438,6 +438,28 @@ in
     };
   };
 
+  # ~/.ssh/config.d is intentionally left unmanaged above (see `includes`):
+  # its content lives in a private git repo. Clone it once over HTTPS using
+  # the sops-provided token; the token ends up in that clone's local
+  # .git/config, so later updates are just a manual `git pull` in there - no
+  # auto-pull on every switch. On the very first switch the token may not be
+  # decrypted yet (see README), so this skips instead of failing.
+  home.activation.cloneSshConfigPrivate = config.lib.dag.entryAfter [ "writeBoundary" ] ''
+    tokenFile="/run/secrets/ssh-config-private-token"
+    target="${config.home.homeDirectory}/.ssh/config.d"
+    repoUrl="${variables.sshConfigPrivate.repoPath}"
+
+    if [ -d "$target/.git" ]; then
+      :
+    elif [ ! -f "$tokenFile" ]; then
+      echo "ssh-config-private: secret not yet decrypted, skipping clone (retry after next switch)"
+    else
+      $DRY_RUN_CMD ${pkgs.git}/bin/git clone \
+        "https://oauth2:$(cat "$tokenFile")@''${repoUrl#https://}" \
+        "$target"
+    fi
+  '';
+
   home.sessionVariables = {
     EDITOR = "vim";
     VISUAL = "vim";

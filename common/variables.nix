@@ -21,4 +21,7 @@
       sha256 = "sha256-XXXXX";
     };
   };
+  sshConfigPrivate = {
+    repoPath = "https://gitlab.host.com/<project-path>.git";
+  };
 }

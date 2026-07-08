@@ -88,3 +88,11 @@ creation_rules:
           - *admin_djlechuck
           - *host_home
           #- *host_work
+
+  # Private SSH config.d repository
+  - path_regex: secrets/ssh-config-private\.yaml$
+    key_groups:
+      - age:
+          - *admin_djlechuck
+          - *host_home
+          #- *host_work

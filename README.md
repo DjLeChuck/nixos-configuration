@@ -103,6 +103,46 @@ To pin a real `sha256` for a tool, start with `pkgs.lib.fakeSha256`, let the
 build fail, then copy the "got:" hash reported by Nix into `variables.nix`.
 Repeat whenever a tool's URL/version changes.
 
+#### Private SSH config.d
+
+`~/.ssh/config.d` (included by `programs.ssh` in `common/home.nix` via
+`Include ~/.ssh/config.d/*.conf`) is left unmanaged by Nix on purpose: its
+content (internal hosts, IPs, work-specific aliases) lives in a private git
+repo, not in this public repo. Same setup as the private GitLab tools above:
+the repo path lives in `common/variables.nix` (local-only, `skip-worktree`),
+the auth token lives encrypted in `secrets/ssh-config-private.yaml` (sops).
+
+One-time setup:
+
+```bash
+# Create/edit the encrypted token (scope: read_repository)
+sops secrets/ssh-config-private.yaml
+# -> ssh-config-private-token: <PAT>
+```
+
+Fill in the real `sshConfigPrivate.repoPath` in `common/variables.nix` (kept
+local by `skip-worktree`, see `git ignored`).
+
+`modules/ssh-config-private.nix` decrypts the token for the interactive user
+(unlike the GitLab tools token, this one doesn't need to reach nix-daemon).
+`common/home.nix`'s `home.activation.cloneSshConfigPrivate` clones the repo
+into `~/.ssh/config.d` over HTTPS the first time it runs, embedding the token
+in the clone's remote URL so it persists in that repo's local `.git/config`.
+As with the GitLab tools token, the very first switch may run before the
+secret is decrypted - the activation script just skips and logs a message in
+that case, so a second switch picks it up:
+
+```bash
+sudo nixos-rebuild switch --flake .#home
+```
+
+Afterwards, updating the content is a plain manual pull - no auto-pull on
+every switch:
+
+```bash
+cd ~/.ssh/config.d && git pull
+```
+
 #### Update dependencies
 
 ```bash

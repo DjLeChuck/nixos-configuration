@@ -6,10 +6,12 @@ in
 {
   imports = [
     ../../modules/gpg.nix
+    ../../modules/ssh-config-private.nix
     ../../modules/vpn-work.nix
   ];
 
   custom.gpgImport.user = "djlechuck";
+  custom.sshConfigPrivate.user = "djlechuck";
 
   # Keep the profile configured (so it's ready when needed) but don't
   # auto-join it on this machine, unlike the other machines using it.
