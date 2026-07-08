@@ -434,6 +434,11 @@ in
         IgnoreUnknown = "AddKeysToAgent,UseKeychain";
         AddKeysToAgent = "yes";
         UseKeychain = "yes";
+        # Ghostty's default TERM (xterm-ghostty) has no terminfo entry on
+        # most remote servers, breaking color/formatting in anything
+        # terminfo-based (vim, tmux, less -R, htop...). Override just what's
+        # sent to the server; local Ghostty sessions keep their real TERM.
+        SetEnv.TERM = "xterm-256color";
       };
     };
   };
