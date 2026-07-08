@@ -534,6 +534,13 @@ in
   # .git/config, so later updates are just a manual `git pull` in there - no
   # auto-pull on every switch. On the very first switch the token may not be
   # decrypted yet (see README), so this skips instead of failing.
+  #
+  # `-c credential.helper=` disables the credential helper for this clone and
+  # (per `git clone`'s documented behavior) persists that empty value into the
+  # new repo's local .git/config. Without it, git still calls the configured
+  # helper's "store" step after a successful URL-embedded auth, and since
+  # `credential.helper` below is global (libsecret) and keyed by host, that
+  # silently overwrote the personal dev token for this same GitLab host.
   home.activation.cloneSshConfigPrivate = config.lib.dag.entryAfter [ "writeBoundary" ] ''
     tokenFile="/run/secrets/ssh-config-private-token"
     target="${config.home.homeDirectory}/.ssh/config.d"
@@ -545,6 +552,7 @@ in
       echo "ssh-config-private: secret not yet decrypted, skipping clone (retry after next switch)"
     else
       $DRY_RUN_CMD ${pkgs.git}/bin/git clone \
+        -c credential.helper= \
         "https://oauth2:$(cat "$tokenFile")@''${repoUrl#https://}" \
         "$target"
     fi
