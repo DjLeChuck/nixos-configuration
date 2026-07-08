@@ -410,8 +410,8 @@ in
       dce = "docker compose exec";
       dcu = "docker compose up";
       sf = "symfony";
-      sfc = "php bin/console";
-      sfp = "php";
+      sfc = "symfony console";
+      sfp = "symfony proxy:start";
       sfs = "symfony serve";
       slc = "symfony console c:c && symfony console lint:cont";
       yid = "yarn install && yarn dev";
@@ -425,27 +425,6 @@ in
     functions = {
       # Fast cd to PHP projects
       cdg = "cd $CDG_DIR/$argv";
-
-      # TEMPORARY workaround: symfony-cli's `php`/`console` subcommands cache
-      # a stale PHP binary path across projects with different .php-version
-      # (see symfony-cli/symfony-cli#124) — reproduced repeatedly with this
-      # Nix setup. Redirect those two to plain php, which reads $PATH fresh
-      # every time; let every other subcommand (serve, proxy:start, ...)
-      # through to the real binary unchanged. Remove once the root cause
-      # is found/fixed.
-      symfony = {
-        description = "Redirect 'symfony php'/'symfony console' to plain php (temporary Nix/symfony-cli workaround)";
-        body = ''
-          switch "$argv[1]"
-            case php
-              php $argv[2..-1]
-            case console
-              php bin/console $argv[2..-1]
-            case '*'
-              command symfony $argv
-          end
-        '';
-      };
 
       # Set up (or refresh) the shared PHP dev shell in the current directory.
       # The actual flake.nix lives only in $NIXOS_CONFIG_DIR/templates/php
