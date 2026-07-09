@@ -25,6 +25,11 @@ const ICON_DISCONNECTED = "network-vpn-disabled-symbolic";
 // run much less often.
 const PENDING_POLL_INTERVAL_MS = 3000;
 const CONNECTED_POLL_INTERVAL_MS = 30000;
+// GNOME Shell 50.2's message tray has a bug where firing two notifications
+// in the same tick can throw inside its internal state machine and
+// permanently jam banner display until the next Shell restart. Staggering
+// avoids ever calling Main.notify() twice in one synchronous pass.
+const NOTIFY_STAGGER_MS = 500;
 
 async function runOpenvpn3(args) {
   const proc = Gio.Subprocess.new(
@@ -178,12 +183,17 @@ const OpenVPN3Indicator = GObject.registerClass(
       this._knownStatus = statuses;
       if (oldStatus !== null) {
         const allNames = new Set([...oldStatus.keys(), ...statuses.keys()]);
+        const pendingNotifications = [];
         for (const name of allNames) {
           const was = isConnected(oldStatus.get(name) ?? "");
           const now = isConnected(statuses.get(name) ?? "");
-          if (!was && now) Main.notify(_("VPN connected"), name);
-          else if (was && !now) Main.notify(_("VPN disconnected"), name);
+          if (!was && now) pendingNotifications.push([_("VPN connected"), name]);
+          else if (was && !now)
+            pendingNotifications.push([_("VPN disconnected"), name]);
         }
+        pendingNotifications.forEach(([title, body], i) => {
+          setTimeout(() => Main.notify(title, body), i * NOTIFY_STAGGER_MS);
+        });
       }
 
       const connectedNames = names.filter((name) =>
