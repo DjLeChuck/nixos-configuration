@@ -112,6 +112,7 @@ in
     symfony-cli
     trivy
     vlc
+    volta
     wkhtmltopdf
     wmctrl
     yarnDirenv
@@ -572,5 +573,8 @@ in
     EDITOR = "vim";
     VISUAL = "vim";
     SSH_AUTH_SOCK = "${config.home.homeDirectory}/.bitwarden-ssh-agent.sock";
+    VOLTA_HOME = "${config.home.homeDirectory}/.volta";
   };
+
+  home.sessionPath = [ "${config.home.homeDirectory}/.volta/bin" ];
 }

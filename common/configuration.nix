@@ -3,9 +3,12 @@
 let
   gnomeExtensionNames = import ./gnome-extension-names.nix;
   openvpn3SwitcherExtension = import ../gnome-extensions/openvpn3-switcher { inherit pkgs; };
+  variables = import ./variables.nix;
+  privateTools = import ../pkgs/private-tools.nix { inherit pkgs variables; };
 in
 {
   imports = [
+    ../modules/fhs-bin-symlinks.nix
     ../modules/private-tools.nix
     ../modules/wifi-home.nix
   ];
@@ -13,6 +16,22 @@ in
   nixpkgs.overlays = [
     (import ../overlays/symfony-cli-php-reload-fix.nix)
   ];
+
+  # Lets generically-linked prebuilt Linux binaries run on NixOS (e.g. the
+  # actual node/yarn runtimes Volta downloads at "volta install" time - the
+  # `volta`/`node`/`yarn` shims themselves are fine, but what they exec into
+  # isn't a Nix-built binary and expects a standard FHS dynamic linker).
+  programs.nix-ld.enable = true;
+
+  # Team tooling (scripts, git hooks, IDE run configs) hardcodes these paths.
+  custom.fhsBinSymlinks = {
+    "/usr/local/bin/lock-excel" = "${privateTools.lock-excel}/bin/lock-excel";
+    "/usr/local/bin/excel2jsonl" = "${privateTools.excel2jsonl}/bin/excel2jsonl";
+    "/usr/bin/pngquant" = "${pkgs.pngquant}/bin/pngquant";
+    "/usr/bin/jpegoptim" = "${pkgs.jpegoptim}/bin/jpegoptim";
+    "/usr/bin/cwebp" = "${pkgs.libwebp}/bin/cwebp";
+    "/usr/local/bin/wkhtmltopdf" = "${pkgs.wkhtmltopdf}/bin/wkhtmltopdf";
+  };
 
   # Automatic weekly GC instead of manually deciding when it's worth it -
   # keeps 30 days of rollback-able generations, purges everything older.
