@@ -274,7 +274,7 @@ in
           ${pkgs.libnotify}/bin/notify-send \
             --icon=software-update-available \
             "Mise à jour NixOS disponible" \
-            "Inputs en retard : ''${outdated[*]}.\nLancer : nh os switch -u"
+            "Inputs en retard : ''${outdated[*]}. Lancer : nh os switch -u"
         fi
       '';
     };
