@@ -23,6 +23,15 @@ in
     fsType = "ext4";
   };
 
+  fileSystems."/home/djlechuck/development" = {
+    device = variables.development;
+    fsType = "none";
+    options = [
+      "bind"
+      "x-systemd.requires-mounts-for=/mnt/lechuck"
+    ];
+  };
+
   nixpkgs.overlays = [ claude-code.overlays.default ];
 
   services.foundryvtt-instances = {
@@ -72,8 +81,6 @@ in
         wineWow64Packages.stable
         winetricks
       ];
-
-      home.file."development".source = config.lib.file.mkOutOfStoreSymlink variables.development;
 
       xdg.configFile."autostart/solaar.desktop".text = ''
         [Desktop Entry]
