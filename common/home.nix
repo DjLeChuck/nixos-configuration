@@ -371,7 +371,7 @@ in
     enableFishIntegration = true;
 
     config = {
-      whitelist.prefix = [ "${variables.development}/php" ];
+      whitelist.prefix = [ "${config.home.homeDirectory}/development" ];
     };
   };
 
