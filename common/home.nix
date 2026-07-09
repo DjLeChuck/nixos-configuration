@@ -317,6 +317,8 @@ in
         email = "djlechuck@gmail.com";
       };
 
+      tag.gpgSign = false;
+
       pull.rebase = false;
       fetch.prune = true;
       init.defaultBranch = "main";
