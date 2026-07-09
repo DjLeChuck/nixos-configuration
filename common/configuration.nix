@@ -118,7 +118,10 @@ in
       zip
     ]);
 
-  programs.appimage.enable = true;
+  programs.appimage = {
+    enable = true;
+    binfmt = true;
+  };
 
   programs.bash = {
     completion.enable = true;
