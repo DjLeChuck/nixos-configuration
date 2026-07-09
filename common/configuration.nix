@@ -14,6 +14,14 @@ in
     (import ../overlays/symfony-cli-php-reload-fix.nix)
   ];
 
+  # Automatic weekly GC instead of manually deciding when it's worth it -
+  # keeps 30 days of rollback-able generations, purges everything older.
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 30d";
+  };
+
   sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
 
   networking.networkmanager.enable = true;
