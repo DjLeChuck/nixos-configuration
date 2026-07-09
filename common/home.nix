@@ -371,6 +371,7 @@ in
     enableFishIntegration = true;
 
     config = {
+      global.hide_env_diff = true;
       whitelist.prefix = [ "${config.home.homeDirectory}/development" ];
     };
   };
