@@ -1,4 +1,4 @@
-{ home-manager, pkgs, ... }:
+{ home-manager, pkgs, toggl-redmine, ... }:
 {
   imports = [
     home-manager.nixosModules.home-manager
@@ -21,5 +21,6 @@
   home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
   home-manager.backupFileExtension = "bck";
+  home-manager.extraSpecialArgs = { inherit toggl-redmine; };
   home-manager.users.djlechuck = import ../../common/home.nix;
 }

@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, toggl-redmine, ... }:
 
 let
   variables = import ./variables.nix;
@@ -110,6 +110,7 @@ in
     signal-desktop
     spotify
     symfony-cli
+    toggl-redmine.packages.${pkgs.stdenv.hostPlatform.system}.default
     trivy
     vlc
     volta
