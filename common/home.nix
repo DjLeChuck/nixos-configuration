@@ -201,7 +201,7 @@ in
 
     "org/gnome/shell/extensions/dash-to-dock" = {
       running-indicator-style = "DOTS";
-      click-action = "minimize-or-previews";
+      click-action = "focus-or-appspread";
     };
   };
 
