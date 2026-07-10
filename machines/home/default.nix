@@ -69,6 +69,19 @@ in
 
   hardware.logitech.wireless.enable = true;
 
+  # This desktop only wakes from suspend via the power button, not
+  # keyboard/mouse (Logitech Unifying receiver, hardware.logitech.wireless
+  # above): xHCI itself is wakeup-enabled in /proc/acpi/wakeup, but the
+  # per-device chain isn't — /sys/bus/usb/devices/*/power/wakeup shows the
+  # downstream ports (mouse, receiver) enabled while every hub in between
+  # (root hubs + external hubs) is disabled, blocking the wakeup signal from
+  # reaching the controller. Match on the USB hub class (09) rather than
+  # hardcoding bus/port paths (1-2, 1-3, ...), since those renumber across
+  # reboots/re-enumeration.
+  services.udev.extraRules = ''
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{bDeviceClass}=="09", ATTR{power/wakeup}="enabled"
+  '';
+
   home-manager.users.djlechuck =
     { config, pkgs, ... }:
     {
