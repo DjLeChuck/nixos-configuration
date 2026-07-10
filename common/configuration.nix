@@ -183,6 +183,12 @@ in
     openFirewall = true;
   };
 
+  # cups-browsed doesn't exit cleanly on SIGTERM (known cups-filters
+  # behavior), so systemd waits the full default 90s TimeoutStopSec before
+  # SIGKILLing it on every shutdown/reboot. Shorten it instead of disabling
+  # network printer discovery.
+  systemd.services.cups-browsed.serviceConfig.TimeoutStopSec = "5s";
+
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
