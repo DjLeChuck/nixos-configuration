@@ -47,6 +47,20 @@ in
   networking.networkmanager.enable = true;
   services.resolved.enable = true;
 
+  # Let containers reach the Symfony CLI proxy (services.symfony-proxy in
+  # common/home.nix) on the host - otherwise traffic to it just times out
+  # instead of getting a clean refusal, since it's silently dropped by
+  # nixos-fw-log-refuse. Custom docker networks (e.g. `docker network
+  # create`) get their own "br-<id>" bridge each time they're recreated, so
+  # "br-+" (iptables' native interface-name wildcard, like "eth+") covers
+  # any of them alongside the default docker0 bridge, scoped to just this
+  # port rather than trusting docker's whole private range on every
+  # interface.
+  networking.firewall.interfaces = {
+    docker0.allowedTCPPorts = [ 7080 ];
+    "br-+".allowedTCPPorts = [ 7080 ];
+  };
+
   # Keep hibernation/suspend-then-hibernate disabled as a safety net on hosts with
   # swap. Not the cause of GPU freezes on resume from plain suspend on `home` — see
   # hardware.nvidia.powerManagement in machines/home/default.nix for that fix.
