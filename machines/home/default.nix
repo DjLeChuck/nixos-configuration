@@ -67,6 +67,12 @@ in
 
   hardware.logitech.wireless.enable = true;
 
+  # This board's FADT has no "Low Power S0 Idle" bit, so real ACPI S3 ("deep")
+  # cuts standby power to USB/PCIe (BIOS "ErP"-style behavior) and wakes only
+  # via the power button. s2idle is a software-only sleep state that never
+  # cuts that power, restoring keyboard/mouse wakeup without touching the BIOS.
+  boot.kernelParams = [ "mem_sleep_default=s2idle" ];
+
   # This desktop only wakes from suspend via the power button, not
   # keyboard/mouse (Logitech Unifying receiver, hardware.logitech.wireless
   # above): xHCI itself is wakeup-enabled in /proc/acpi/wakeup, but the
@@ -76,8 +82,14 @@ in
   # reaching the controller. Match on the USB hub class (09) rather than
   # hardcoding bus/port paths (1-2, 1-3, ...), since those renumber across
   # reboots/re-enumeration.
+  #
+  # power/control="on" additionally keeps those same hubs from runtime-
+  # autosuspending: with s2idle, hubs came back from resume in a stuck
+  # half-suspended state where keyboard/mouse input was silently dropped
+  # until some unrelated USB (re)connect event on the same hub kicked them
+  # out of it (e.g. toggling a headset sharing the mouse's hub).
   services.udev.extraRules = ''
-    ACTION=="add", SUBSYSTEM=="usb", ATTR{bDeviceClass}=="09", ATTR{power/wakeup}="enabled"
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{bDeviceClass}=="09", ATTR{power/wakeup}="enabled", ATTR{power/control}="on"
   '';
 
   home-manager.users.djlechuck =
