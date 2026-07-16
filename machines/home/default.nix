@@ -67,6 +67,10 @@ in
 
   hardware.logitech.wireless.enable = true;
 
+  # This machine is the only one with Logitech hardware, so keep the
+  # Solaar Wayland-integration extension out of the common set.
+  custom.gnomeExtensionNames = [ "solaar-extension" ];
+
   # This board's FADT has no "Low Power S0 Idle" bit, so real ACPI S3 ("deep")
   # cuts standby power to USB/PCIe (BIOS "ErP"-style behavior) and wakes only
   # via the power button. s2idle is a software-only sleep state that never
@@ -114,6 +118,19 @@ in
         Terminal=false
         Type=Application
         Categories=Utility;GTK;
+      '';
+
+      # FN+F7 ("Screen Capture" HID++ control) -> simulate Print, opening
+      # GNOME's screenshot UI. Requires the solaar-extension GNOME Shell
+      # extension (custom.gnomeExtensionNames above) for Solaar to reliably
+      # synthesize the keypress under Wayland.
+      xdg.configFile."solaar/rules.yaml".text = ''
+        %YAML 1.3
+        ---
+        - Key: [Screen Capture, pressed]
+        - KeyPress:
+          - Print
+          - click
       '';
 
       # networking.hostName ("djlechuck-linux") doesn't match this flake's

@@ -1,4 +1,4 @@
-{ config, pkgs, toggl-redmine, ... }:
+{ config, pkgs, osConfig, toggl-redmine, ... }:
 
 let
   variables = import ./variables.nix;
@@ -182,7 +182,9 @@ in
     "org/gnome/shell" = {
       disable-user-extensions = false;
       enabled-extensions =
-        (map (name: pkgs.gnomeExtensions.${name}.extensionUuid) gnomeExtensionNames)
+        (map (name: pkgs.gnomeExtensions.${name}.extensionUuid) (
+          gnomeExtensionNames ++ osConfig.custom.gnomeExtensionNames
+        ))
         ++ [ openvpn3SwitcherExtension.extensionUuid ];
       always-show-log-out = true;
     };

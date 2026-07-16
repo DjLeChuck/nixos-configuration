@@ -9,6 +9,7 @@ in
 {
   imports = [
     ../modules/fhs-bin-symlinks.nix
+    ../modules/gnome-extensions.nix
     ../modules/private-tools.nix
     ../modules/wifi-home.nix
   ];
@@ -114,7 +115,9 @@ in
   ];
 
   environment.systemPackages =
-    (map (name: pkgs.gnomeExtensions.${name}) gnomeExtensionNames)
+    (map (name: pkgs.gnomeExtensions.${name}) (
+      gnomeExtensionNames ++ config.custom.gnomeExtensionNames
+    ))
     ++ [ openvpn3SwitcherExtension ]
     ++ (with pkgs; [
       dconf-editor
