@@ -206,6 +206,19 @@ in
   # network printer discovery.
   systemd.services.cups-browsed.serviceConfig.TimeoutStopSec = "5s";
 
+  # A crash-looping app (e.g. PhpStorm's JCEF, whose cef_server keeps
+  # dying on proxy_resolver.mojom.ProxyResolverFactory) makes
+  # systemd-coredump read/compress tens of GB per crash, which stalls the
+  # whole machine's disk regardless of cgroup. Don't touch what's collected
+  # (ProcessSizeMax's ~32GB default is correct for a 64-bit system) - just
+  # make sure coredump processing never wins a resource fight against
+  # whatever the user is actually doing.
+  systemd.services."systemd-coredump@".serviceConfig = {
+    CPUSchedulingPolicy = "idle";
+    IOSchedulingClass = "idle";
+    Nice = 19;
+  };
+
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
