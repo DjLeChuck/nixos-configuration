@@ -11,6 +11,13 @@
 
   nixpkgs.overlays = [ claude-code.overlays.default ];
 
+  hardware.tuxedo-rs = {
+    enable = true;
+    tailor-gui.enable = true;
+  };
+
+  hardware.tuxedo-drivers.settings.fn-lock = false;
+
   users.users.vdebona = {
     isNormalUser = true;
     description = "Vivien DE BONA";
