@@ -118,7 +118,6 @@ in
     wkhtmltopdf
     wmctrl
     yarnDirenv
-    zed-editor
   ];
 
   xdg.configFile."fish/completions/cdg.fish".text = ''
@@ -303,6 +302,29 @@ in
 
     settings = {
       background-opacity = 0.9;
+    };
+  };
+
+  programs.zed-editor = {
+    enable = true;
+    extensions = [ "nix" ];
+    extraPackages = [ pkgs.nixd ];
+
+    userSettings = {
+      cli_default_open_behavior = "new_window";
+      project_panel.dock = "left";
+      autosave = "on_focus_change";
+      ui_font_size = 16;
+      buffer_font_size = 15;
+      theme = {
+        mode = "system";
+        light = "One Light";
+        dark = "One Dark";
+      };
+      # The "nix" extension registers both nil and nixd; nixd is picked
+      # explicitly for its flake-aware eval-based completion/hover.
+      languages.Nix.language_servers = [ "nixd" "!nil" ];
+      lsp.nixd.binary.path = "${pkgs.nixd}/bin/nixd";
     };
   };
 
