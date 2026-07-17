@@ -1,6 +1,6 @@
 keys:
-  # Age key of home
-  - &admin_djlechuck age1q7w27xhmetzu95svd92q7vmj29yhk5pcf8aeslxnduvfxsk7y3kqt4l2dd
+  # Age key of the master one
+  - &master_key age1q7w27xhmetzu95svd92q7vmj29yhk5pcf8aeslxnduvfxsk7y3kqt4l2dd
 
   # Age key of home
   - &host_home age1rg4cgg9y2t04g00pvukafuvgm5ae90ugfjxa4yehxdq3rzgheqks46kk4r
@@ -19,7 +19,7 @@ creation_rules:
   - path_regex: secrets/vm-home\.yaml$
     key_groups:
       - age:
-          - *admin_djlechuck
+          - *master_key
           - *host_home
           - *host_vm_home
 
@@ -27,7 +27,7 @@ creation_rules:
   - path_regex: secrets/vm-work\.yaml$
     key_groups:
       - age:
-          - *admin_djlechuck
+          - *master_key
           #- *host_work
           #- *host_vm_work
 
@@ -35,21 +35,21 @@ creation_rules:
   - path_regex: secrets/home\.yaml$
     key_groups:
       - age:
-          - *admin_djlechuck
+          - *master_key
           - *host_home
 
   # Secrets specific to work
   - path_regex: secrets/work\.yaml$
     key_groups:
       - age:
-          - *admin_djlechuck
+          - *master_key
           #- *host_work
 
   # Secrets shared across multiple machines
   - path_regex: secrets/common\.yaml$
     key_groups:
       - age:
-          - *admin_djlechuck
+          - *master_key
           - *host_home
           #- *host_work
           - *host_vm_home
@@ -59,7 +59,7 @@ creation_rules:
   - path_regex: secrets/vpn-work/.*\.ovpn$
     key_groups:
       - age:
-          - *admin_djlechuck
+          - *master_key
           - *host_home
           #- *host_work
           - *host_vm_home
@@ -68,7 +68,7 @@ creation_rules:
   - path_regex: secrets/vpn-home/.*\.conf$
     key_groups:
       - age:
-          - *admin_djlechuck
+          - *master_key
           #- *host_work
           - *host_vm_home
           #- *host_vm_work
@@ -77,7 +77,7 @@ creation_rules:
   - path_regex: secrets/private-tools\.yaml$
     key_groups:
       - age:
-          - *admin_djlechuck
+          - *master_key
           - *host_home
           #- *host_work
 
@@ -85,7 +85,7 @@ creation_rules:
   - path_regex: secrets/ssh-config-private\.yaml$
     key_groups:
       - age:
-          - *admin_djlechuck
+          - *master_key
           - *host_home
           #- *host_work
 
@@ -93,7 +93,7 @@ creation_rules:
   - path_regex: secrets/ansible-vault-passwords\.yaml$
     key_groups:
       - age:
-          - *admin_djlechuck
+          - *master_key
           - *host_home
           #- *host_work
           - *host_vm_home
