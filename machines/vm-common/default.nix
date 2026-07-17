@@ -2,8 +2,11 @@
 {
   imports = [
     home-manager.nixosModules.home-manager
+    ../../modules/ansible-vault-passwords.nix
     ../../modules/vpn-home.nix
   ];
+
+  custom.ansibleVaultPasswords.user = "djlechuck";
 
   boot.loader.grub.enable = true;
   boot.loader.grub.device = "/dev/sda";

@@ -2,11 +2,13 @@
 
 {
   imports = [
+    ../../modules/ansible-vault-passwords.nix
     ../../modules/ssh-config-private.nix
     ../../modules/vpn-work.nix
     ../../modules/vpn-home.nix
   ];
 
+  custom.ansibleVaultPasswords.user = "vdebona";
   custom.sshConfigPrivate.user = "vdebona";
 
   nixpkgs.overlays = [ claude-code.overlays.default ];
