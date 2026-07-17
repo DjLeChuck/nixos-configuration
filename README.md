@@ -8,10 +8,12 @@ This repository contains a declarative, reproducible system configuration for al
 
 ### Machines
 
-| Machine   | Description               | Boot               | GPU                |
-| --------- | ------------------------- | ------------------ | ------------------ |
-| `vm-test` | VirtualBox VM for testing | GRUB / BIOS        | Virtual            |
-| `home`    | Personal workstation      | systemd-boot / EFI | NVIDIA RTX 3080 Ti |
+| Machine   | Description                      | Boot               | GPU                        |
+| --------- | -------------------------------- | ------------------ | -------------------------- |
+| `home`    | Personal workstation             | systemd-boot / EFI | NVIDIA RTX 3080 Ti         |
+| `work`    | Work laptop (Tuxedo)             | systemd-boot / EFI | Integrated (Tuxedo laptop) |
+| `vm-home` | VirtualBox VM for testing `home` | GRUB / BIOS        | Virtual                    |
+| `vm-work` | VirtualBox VM for testing `work` | GRUB / BIOS        | Virtual                    |
 
 ### Structure
 
@@ -88,7 +90,7 @@ local by `skip-worktree`, see `git ignored`).
 `modules/private-tools.nix` feeds the decrypted token into `nix-daemon`'s own
 systemd environment, since builds run through the daemon rather than the
 interactive shell. That means on first rollout the daemon needs to pick up
-the new `EnvironmentFile` *before* the tool packages can build:
+the new `EnvironmentFile` _before_ the tool packages can build:
 
 ```bash
 # 1) First switch: only wires the secret into nix-daemon's environment
