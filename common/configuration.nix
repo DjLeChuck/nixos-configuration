@@ -231,6 +231,14 @@ in
   hardware.graphics.enable = true;
   hardware.enableRedistributableFirmware = true;
 
+  # `home` has no swap device at all (see hardware-configuration.nix), so
+  # systemd-oomd logs "No swap; memory pressure usage will be degraded" on
+  # every boot - its pressure-based killing needs some swap headroom to work
+  # properly. Without it, a genuine memory squeeze (several Chromium/Electron
+  # apps plus a concurrent nix build) has no safety valve and can thrash the
+  # machine into total unresponsiveness instead of oomd catching it early.
+  zramSwap.enable = true;
+
   nix.settings = {
     experimental-features = [ "nix-command" "flakes" ];
   };
