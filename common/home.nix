@@ -111,6 +111,7 @@ in
     spotify
     symfony-cli
     toggl-redmine.packages.${pkgs.stdenv.hostPlatform.system}.default
+    tree
     trivy
     vlc
     volta
