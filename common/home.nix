@@ -460,7 +460,7 @@ in
     shellAbbrs = {
       dc = "docker compose";
       dcc = "docker compose cp";
-      dcd = "docker compose cp";
+      dcd = "docker compose down";
       dce = "docker compose exec";
       dcu = "docker compose up";
       sf = "symfony";
