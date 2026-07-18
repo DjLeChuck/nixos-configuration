@@ -202,6 +202,11 @@ in
       begin-move = [ ];
     };
 
+    "org/gnome/desktop/sound" = {
+      event-sounds = false;
+      theme-name = "__custom";
+    };
+
     "org/gnome/shell/extensions/dash-to-dock" = {
       running-indicator-style = "DOTS";
       click-action = "focus-or-appspread";
