@@ -99,7 +99,7 @@ in
   '';
 
   home-manager.users.djlechuck =
-    { config, pkgs, ... }:
+    { pkgs, ... }:
     {
       home.packages = with pkgs; [
         pkgs.claude-code

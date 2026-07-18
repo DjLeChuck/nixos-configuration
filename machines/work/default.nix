@@ -32,14 +32,18 @@
   };
   services.foundryvtt-gnome-extension.enable = true;
 
-  home-manager.users.vdebona.home.packages = with pkgs; [
-    claude-code
-  ];
+  home-manager.users.vdebona =
+    { pkgs, ... }:
+    {
+      home.packages = with pkgs; [
+        pkgs.claude-code
+      ];
 
-  # networking.hostName ("LIN-2025-1") doesn't match this flake's
-  # nixosConfigurations attribute name ("work"), so `nh os` can't infer
-  # it automatically — pin it explicitly.
-  home-manager.users.vdebona.programs.fish.interactiveShellInit = ''
-    set -gx NH_OS_FLAKE "$NIXOS_CONFIG_DIR#work"
-  '';
+      # networking.hostName ("LIN-2025-1") doesn't match this flake's
+      # nixosConfigurations attribute name ("work"), so `nh os` can't infer
+      # it automatically — pin it explicitly.
+      programs.fish.interactiveShellInit = ''
+        set -gx NH_OS_FLAKE "$NIXOS_CONFIG_DIR#work"
+      '';
+    };
 }
