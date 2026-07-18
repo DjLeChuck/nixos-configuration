@@ -6,7 +6,7 @@ keys:
   - &host_home age1rg4cgg9y2t04g00pvukafuvgm5ae90ugfjxa4yehxdq3rzgheqks46kk4r
 
   # Age key of work
-  # - &host_work age1TODO_REPLACE_AFTER_REBUILD_WORK
+  - &host_work age1v2xze2qjp0auq62mr9r6a5h22ztfllclg0f0qpk7ngmzy9vuc5rq3cxejq
 
   # Age key of vm-home
   - &host_vm_home age1dqlmhrmkdvllf3xqcxpsxh95jtxndfa2m6jjymc8zy9cweew5g7svd45v7
@@ -15,43 +15,13 @@ keys:
   # - &host_vm_work age1TODO_REPLACE_AFTER_REBUILD_VM_WORK
 
 creation_rules:
-  # Secrets specific to vm-home
-  - path_regex: secrets/vm-home\.yaml$
-    key_groups:
-      - age:
-          - *master_key
-          - *host_home
-          - *host_vm_home
-
-  # Secrets specific to vm-work
-  - path_regex: secrets/vm-work\.yaml$
-    key_groups:
-      - age:
-          - *master_key
-          #- *host_work
-          #- *host_vm_work
-
-  # Secrets specific to home
-  - path_regex: secrets/home\.yaml$
-    key_groups:
-      - age:
-          - *master_key
-          - *host_home
-
-  # Secrets specific to work
-  - path_regex: secrets/work\.yaml$
-    key_groups:
-      - age:
-          - *master_key
-          #- *host_work
-
   # Secrets shared across multiple machines
   - path_regex: secrets/common\.yaml$
     key_groups:
       - age:
           - *master_key
           - *host_home
-          #- *host_work
+          - *host_work
           - *host_vm_home
           #- *host_vm_work
 
@@ -61,7 +31,7 @@ creation_rules:
       - age:
           - *master_key
           - *host_home
-          #- *host_work
+          - *host_work
           - *host_vm_home
 
   # WireGuard home VPN config (raw .conf file, sops binary format)
@@ -69,7 +39,7 @@ creation_rules:
     key_groups:
       - age:
           - *master_key
-          #- *host_work
+          - *host_work
           - *host_vm_home
           #- *host_vm_work
 
@@ -79,7 +49,7 @@ creation_rules:
       - age:
           - *master_key
           - *host_home
-          #- *host_work
+          - *host_work
 
   # Private SSH config.d repository
   - path_regex: secrets/ssh-config-private\.yaml$
@@ -87,7 +57,7 @@ creation_rules:
       - age:
           - *master_key
           - *host_home
-          #- *host_work
+          - *host_work
 
   # Ansible vault passwords, shared across all machines
   - path_regex: secrets/ansible-vault-passwords\.yaml$
@@ -95,6 +65,6 @@ creation_rules:
       - age:
           - *master_key
           - *host_home
-          #- *host_work
+          - *host_work
           - *host_vm_home
           #- *host_vm_work
