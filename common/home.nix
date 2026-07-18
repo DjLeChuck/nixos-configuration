@@ -215,11 +215,6 @@ in
     pinentry.package = pkgs.pinentry-gnome3;
   };
 
-  services.nextcloud-client = {
-    enable = true;
-    startInBackground = true;
-  };
-
   systemd.user.services.symfony-proxy = {
     Unit.Description = "Symfony CLI local proxy";
 

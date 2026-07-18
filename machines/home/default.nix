@@ -111,6 +111,11 @@ in
         winetricks
       ];
 
+      services.nextcloud-client = {
+        enable = true;
+        startInBackground = true;
+      };
+
       xdg.configFile."autostart/solaar.desktop".text = ''
         [Desktop Entry]
         Name=Solaar
