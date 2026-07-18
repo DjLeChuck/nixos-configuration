@@ -79,6 +79,8 @@
         pkgs.claude-code
       ];
 
+      dconf.settings."org/gnome/desktop/peripherals/touchpad".natural-scroll = false;
+
       # networking.hostName ("LIN-2025-1") doesn't match this flake's
       # nixosConfigurations attribute name ("work"), so `nh os` can't infer
       # it automatically — pin it explicitly.
