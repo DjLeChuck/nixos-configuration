@@ -104,6 +104,14 @@ vars-check:
 				echo "  [MISSING] $$key"; \
 			fi; \
 		done; \
+		if ! grep -qE "^[[:space:]]*enable[[:space:]]*=" common/variables.nix; then \
+			echo "  [MISSING] privateTools.enable - required key, add it (see README)"; \
+		elif grep -qE "^[[:space:]]*enable[[:space:]]*=[[:space:]]*true" common/variables.nix; then \
+			echo "  [OK]      privateTools.enable = true"; \
+		else \
+			echo "  [OFF]     privateTools.enable = false - lock-excel/excel2jsonl won't be built"; \
+			echo "            (expected until the real URLs/sha256/token are set up, see README)"; \
+		fi; \
 	fi
 
 # Best-effort line scanner over .sops.yaml, not a real YAML parser.

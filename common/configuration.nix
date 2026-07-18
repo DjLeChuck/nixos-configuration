@@ -1,17 +1,30 @@
-{ config, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
 let
   gnomeExtensionNames = import ./gnome-extension-names.nix;
   openvpn3SwitcherExtension = import ../gnome-extensions/openvpn3-switcher { inherit pkgs; };
   variables = import ./variables.nix;
-  privateTools = import ../pkgs/private-tools.nix { inherit pkgs variables; };
+  privateToolsEnabled = variables.privateTools.enable;
+  privateTools =
+    if privateToolsEnabled
+    then import ../pkgs/private-tools.nix { inherit pkgs variables; }
+    else null;
 in
 {
   imports = [
     ../modules/fhs-bin-symlinks.nix
     ../modules/gnome-extensions.nix
-    ../modules/private-tools.nix
     ../modules/wifi-home.nix
+  ] ++ lib.optional privateToolsEnabled ../modules/private-tools.nix;
+
+  # Fails fast with a clear message instead of a cryptic sha256 mismatch or
+  # 401 deep in a fetchurl build log when privateTools.enable is flipped on
+  # before the real gitlabHost/url/sha256 values have been filled in.
+  assertions = [
+    {
+      assertion = !privateToolsEnabled || variables.privateTools.gitlabHost != "gitlab.host.com";
+      message = "privateTools.enable is true in common/variables.nix but gitlabHost/url/sha256 still look like the placeholder skeleton - fill in real values first.";
+    }
   ];
 
   nixpkgs.overlays = [
@@ -26,13 +39,14 @@ in
 
   # Team tooling (scripts, git hooks, IDE run configs) hardcodes these paths.
   custom.fhsBinSymlinks = {
-    "/usr/local/bin/lock-excel" = "${privateTools.lock-excel}/bin/lock-excel";
-    "/usr/local/bin/excel2jsonl" = "${privateTools.excel2jsonl}/bin/excel2jsonl";
     "/usr/bin/pngquant" = "${pkgs.pngquant}/bin/pngquant";
     "/usr/bin/jpegoptim" = "${pkgs.jpegoptim}/bin/jpegoptim";
     "/usr/bin/cwebp" = "${pkgs.libwebp}/bin/cwebp";
     "/usr/local/bin/wkhtmltopdf" = "${pkgs.wkhtmltopdf}/bin/wkhtmltopdf";
     "/bin/bash" = "${pkgs.bashInteractive}/bin/bash";
+  } // lib.optionalAttrs privateToolsEnabled {
+    "/usr/local/bin/lock-excel" = "${privateTools.lock-excel}/bin/lock-excel";
+    "/usr/local/bin/excel2jsonl" = "${privateTools.excel2jsonl}/bin/excel2jsonl";
   };
 
   # Automatic weekly GC instead of manually deciding when it's worth it -

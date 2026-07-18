@@ -4,7 +4,11 @@ let
   variables = import ./variables.nix;
   gnomeExtensionNames = import ./gnome-extension-names.nix;
   openvpn3SwitcherExtension = import ../gnome-extensions/openvpn3-switcher { inherit pkgs; };
-  privateTools = import ../pkgs/private-tools.nix { inherit pkgs variables; };
+  privateToolsEnabled = variables.privateTools.enable;
+  privateTools =
+    if privateToolsEnabled
+    then import ../pkgs/private-tools.nix { inherit pkgs variables; }
+    else null;
 
   gitGlobalIgnores = [
     ".idea/"
@@ -105,8 +109,6 @@ in
     phpstormUrlHandler
     pngquant
     postman
-    privateTools.lock-excel
-    privateTools.excel2jsonl
     signal-desktop
     spotify
     symfony-cli
@@ -118,6 +120,9 @@ in
     wkhtmltopdf
     wmctrl
     yarnDirenv
+  ] ++ pkgs.lib.optionals privateToolsEnabled [
+    privateTools.lock-excel
+    privateTools.excel2jsonl
   ];
 
   xdg.configFile."fish/completions/cdg.fish".text = ''

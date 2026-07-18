@@ -11,14 +11,15 @@
   };
   development = "/path/to/development";
   privateTools = {
+    enable = false;
     gitlabHost = "gitlab.host.com";
     lockExcel = {
       url = "https://gitlab.host.com/api/v4/projects/<project-path>/packages/generic/<package-name>/<version>/<binary-name>";
-      sha256 = "sha256-XXXXX";
+      sha256 = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
     };
     excel2jsonl = {
       url = "https://gitlab.host.com/api/v4/projects/<project-path>/packages/generic/<package-name>/<version>/<binary-name>";
-      sha256 = "sha256-XXXXX";
+      sha256 = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
     };
   };
   sshConfigPrivate = {

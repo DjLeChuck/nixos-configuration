@@ -76,16 +76,28 @@ private GitLab. Neither the repo URLs nor the auth token are ever committed
 in clear: URLs live in `common/variables.nix` (local-only, `skip-worktree`),
 the token lives encrypted in `secrets/private-tools.yaml` (sops).
 
-One-time setup:
+This whole feature is gated behind `privateTools.enable` in
+`common/variables.nix` - a required key, always present (the committed
+skeleton defaults it to `false`). A base system always builds and switches
+fine with it off - no token, no URLs, no sops setup required. Only flip it
+on once the steps below are done; until then `lock-excel`/`excel2jsonl` are
+simply absent, with no error.
 
-```bash
-# Create/edit the encrypted token (scope: read_api)
-sops secrets/private-tools.yaml
-# -> gitlab_tools_token: <PAT>
-```
+One-time setup, in order:
 
-Fill in the real `privateTools` URLs/host in `common/variables.nix` (kept
-local by `skip-worktree`, see `git ignored`).
+1. Make sure this machine's age key is a recipient for
+   `secrets/private-tools.yaml` in `.sops.yaml` (see `make checklist
+   HOST=<name>`), then create/edit the encrypted token (scope: `read_api`):
+
+   ```bash
+   sops secrets/private-tools.yaml
+   # -> gitlab_tools_token: <PAT>
+   ```
+
+2. Fill in the real `privateTools` URLs/host in `common/variables.nix` (kept
+   local by `skip-worktree`, see `git ignored`).
+
+3. Set `privateTools.enable = true;` in that same local `common/variables.nix`.
 
 `modules/private-tools.nix` feeds the decrypted token into `nix-daemon`'s own
 systemd environment, since builds run through the daemon rather than the
@@ -101,7 +113,9 @@ sudo nixos-rebuild switch --flake .#home
 sudo nixos-rebuild switch --flake .#home
 ```
 
-To pin a real `sha256` for a tool, start with `pkgs.lib.fakeSha256`, let the
+To pin a real `sha256` for a tool, start with `lib.fakeHash` (the value
+already used as a placeholder in the committed `variables.nix` skeleton -
+`fakeSha256` is the older, deprecated name for the same thing), let the
 build fail, then copy the "got:" hash reported by Nix into `variables.nix`.
 Repeat whenever a tool's URL/version changes.
 
