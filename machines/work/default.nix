@@ -11,6 +11,24 @@
   custom.ansibleVaultPasswords.user = "vdebona";
   custom.sshConfigPrivate.user = "vdebona";
 
+  # Graphical splash covering the LUKS unlock prompt (like Ubuntu), instead
+  # of it appearing mid-scroll in the kernel/systemd boot log. The legacy
+  # (non-systemd) initrd's LUKS prompt is a plain `read`, not wired to
+  # Plymouth - the systemd initrd routes it through systemd-ask-password,
+  # which Plymouth hooks into natively.
+  boot.initrd.systemd.enable = true;
+  boot.plymouth.enable = true;
+
+  boot.consoleLogLevel = 3;
+  boot.initrd.verbose = false;
+  boot.kernelParams = [ "quiet" "udev.log_level=3" "rd.udev.log_level=3" ];
+
+  # Every generation shares the same systemd-boot menu title ("NixOS"), so
+  # systemd-boot disambiguates entries by appending system.nixos.label
+  # (a verbose release+revision string by default) - shorten it instead.
+  system.nixos.label = "work";
+  boot.loader.systemd-boot.configurationLimit = 10;
+
   nixpkgs.overlays = [ claude-code.overlays.default ];
 
   hardware.tuxedo-rs = {
