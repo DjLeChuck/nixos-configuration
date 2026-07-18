@@ -38,6 +38,28 @@
 
   hardware.tuxedo-drivers.settings.fn-lock = false;
 
+  # The keyboard's RGB controller (ITE8291) runs its own erratic per-key demo
+  # effect until software explicitly overrides it - tailord's active profile has
+  # "leds": [] so nothing ever does, and a udev rule that only sets "brightness"
+  # doesn't stick (see community fix in tuxedocomputers/tuxedo-keyboard#204,
+  # which writes both "multi_intensity" and "brightness" per key). Force both off
+  # directly via sysfs in a oneshot service instead.
+  systemd.services.disable-kbd-rgb-backlight = {
+    description = "Turn off the keyboard RGB backlight LEDs";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "systemd-udevd.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+    script = ''
+      for dev in /sys/class/leds/rgb:kbd_backlight*; do
+        echo "0 0 0" > "$dev/multi_intensity" 2>/dev/null || true
+        echo 0 > "$dev/brightness" 2>/dev/null || true
+      done
+    '';
+  };
+
   users.users.vdebona = {
     isNormalUser = true;
     description = "Vivien DE BONA";
