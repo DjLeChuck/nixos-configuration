@@ -219,6 +219,10 @@ in
     "org/gnome/shell/extensions/dash-to-dock" = {
       running-indicator-style = "DOTS";
       click-action = "focus-or-appspread";
+      dock-position = "LEFT";
+      extend-height = true;
+      intellihide = false;
+      autohide = false;
     };
   };
 
