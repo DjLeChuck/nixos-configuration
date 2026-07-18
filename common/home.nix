@@ -207,6 +207,15 @@ in
       theme-name = "__custom";
     };
 
+    "org/gnome/nautilus/preferences" = {
+      default-folder-viewer = "list-view";
+    };
+
+    "org/gnome/nautilus/list-view" = {
+      default-zoom-level = "small";
+      use-tree-view = true;
+    };
+
     "org/gnome/shell/extensions/dash-to-dock" = {
       running-indicator-style = "DOTS";
       click-action = "focus-or-appspread";
