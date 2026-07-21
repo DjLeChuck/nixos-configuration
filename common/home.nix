@@ -67,27 +67,6 @@ let
     exit 0
   '';
 
-  # PhpStorm's Node.js plugin (Settings | Languages & Frameworks | Node.js) needs a fixed
-  # interpreter path, but node/yarn come from the shared PHP flake template (see
-  # ../templates/php/flake.nix) and differ per project. These wrappers resolve to the right
-  # binary for whatever project directory they're run from, via the NODE_BIN/YARN_BIN cache
-  # that flake's shellHook writes to .direnv/{node,yarn}_bin — so a single stable path can be
-  # configured once in the IDE and reused across every project using that flake. Falls back to
-  # `direnv exec` (slower, but self-healing) if the cache hasn't been populated yet.
-  nodeDirenv = pkgs.writeShellScriptBin "node-direnv" ''
-    cache="$PWD/.direnv/node_bin"
-    if [ -s "$cache" ]; then
-      exec "$(cat "$cache")" "$@"
-    fi
-    exec ${pkgs.direnv}/bin/direnv exec "$PWD" node "$@"
-  '';
-  yarnDirenv = pkgs.writeShellScriptBin "yarn-direnv" ''
-    cache="$PWD/.direnv/yarn_bin"
-    if [ -s "$cache" ]; then
-      exec "$(cat "$cache")" "$@"
-    fi
-    exec ${pkgs.direnv}/bin/direnv exec "$PWD" yarn "$@"
-  '';
 in
 {
   home.stateVersion = "26.05";
@@ -105,7 +84,6 @@ in
     libwebp
     mattermost-desktop
     meld
-    nodeDirenv
     phpstormUrlHandler
     pngquant
     postman
@@ -119,7 +97,6 @@ in
     volta
     wkhtmltopdf
     wmctrl
-    yarnDirenv
   ] ++ pkgs.lib.optionals privateToolsEnabled [
     privateTools.lock-excel
     privateTools.excel2jsonl
@@ -633,4 +610,14 @@ in
   };
 
   home.sessionPath = [ "${config.home.homeDirectory}/.volta/bin" ];
+
+  # Volta's own shims (node/yarn/npm) auto-install whatever version a project
+  # pins in its package.json's "volta" field, but they need a default
+  # toolchain installed first to work at all outside of a pinned project -
+  # this provisions that default once, without re-downloading on every switch.
+  home.activation.voltaDefaultToolchain = config.lib.dag.entryAfter [ "writeBoundary" ] ''
+    if [ ! -d "${config.home.homeDirectory}/.volta/tools/image/node" ]; then
+      $DRY_RUN_CMD ${pkgs.volta}/bin/volta install node yarn
+    fi
+  '';
 }
