@@ -1,4 +1,4 @@
-{ pkgs, claude-code, ... }:
+{ config, pkgs, claude-code, ... }:
 
 {
   imports = [
@@ -37,6 +37,27 @@
   };
 
   hardware.tuxedo-drivers.settings.fn-lock = false;
+
+  # HDMI/DP outputs are wired directly to the Nvidia dGPU (nouveau barely
+  # modesets it, giving a black screen with only the cursor visible on any
+  # external monitor). Use the proprietary driver with PRIME "sync" instead
+  # of "offload": offload assumes the iGPU drives every physical port, which
+  # isn't the case here, so the dGPU has to stay on and drive its own ports.
+  services.xserver.videoDrivers = [ "nvidia" ];
+
+  hardware.nvidia = {
+    modesetting.enable = true;
+    open = true; # Ada Lovelace (RTX 40xx mobile) supports the open kernel modules
+    nvidiaSettings = true;
+    package = config.boot.kernelPackages.nvidiaPackages.stable;
+    powerManagement.enable = true;
+
+    prime = {
+      sync.enable = true;
+      intelBusId = "PCI:0:2:0";
+      nvidiaBusId = "PCI:1:0:0";
+    };
+  };
 
   # The keyboard's RGB controller (ITE8291) runs its own erratic per-key demo
   # effect until software explicitly overrides it - tailord's active profile has
