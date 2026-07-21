@@ -68,3 +68,11 @@ creation_rules:
           - *host_work
           - *host_vm_home
           #- *host_vm_work
+
+  # Composer auth tokens (GitLab + GitHub)
+  - path_regex: secrets/composer-auth\.yaml$
+    key_groups:
+      - age:
+          - *master_key
+          - *host_home
+          - *host_work

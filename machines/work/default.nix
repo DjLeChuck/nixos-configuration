@@ -3,12 +3,14 @@
 {
   imports = [
     ../../modules/ansible-vault-passwords.nix
+    ../../modules/composer-auth.nix
     ../../modules/ssh-config-private.nix
     ../../modules/vpn-work.nix
     ../../modules/vpn-home.nix
   ];
 
   custom.ansibleVaultPasswords.user = "vdebona";
+  custom.composerAuth.user = "vdebona";
   custom.sshConfigPrivate.user = "vdebona";
 
   # Graphical splash covering the LUKS unlock prompt (like Ubuntu), instead

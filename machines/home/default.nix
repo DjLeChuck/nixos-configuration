@@ -6,11 +6,13 @@ in
 {
   imports = [
     ../../modules/ansible-vault-passwords.nix
+    ../../modules/composer-auth.nix
     ../../modules/ssh-config-private.nix
     ../../modules/vpn-work.nix
   ];
 
   custom.ansibleVaultPasswords.user = "djlechuck";
+  custom.composerAuth.user = "djlechuck";
   custom.sshConfigPrivate.user = "djlechuck";
 
   # Keep the profile configured (so it's ready when needed) but don't
