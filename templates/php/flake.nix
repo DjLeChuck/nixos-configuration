@@ -110,6 +110,11 @@
             # points it at this one directly, keeping composer pinned to the project's nixpkgs.
             env.SYMFONY_COMPOSER_PATH = "${composer}/bin/composer";
 
+            # There's no /etc/ldap/ldap.conf on this system, and libldap (used by PHP's ldap
+            # extension) reads TLS_REQCERT from the LDAPTLS_REQCERT env var as a fallback.
+            # Dev-only: skips LDAP server cert verification (e.g. self-signed/internal CA).
+            env.LDAPTLS_REQCERT = "never";
+
             shellHook = ''
               echo "PHP:      ${php.version} (${phpAttr}${if builtins.pathExists phpVersionFile then "" else ", default"})"
               echo "Composer: ${composer.version}"
