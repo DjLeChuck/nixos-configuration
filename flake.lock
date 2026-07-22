@@ -182,11 +182,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1783698439,
-        "narHash": "sha256-k2SFOwHcIwObXBK+WfQU7GFjWCQJjnYK+yHgbGFKYD8=",
+        "lastModified": 1784724500,
+        "narHash": "sha256-bxZiDcEvSSLVDExRwiOZKIVG/ga9dMxiLJ3t+FC+DqI=",
         "owner": "umanit",
         "repo": "toggl-redmine",
-        "rev": "14610422c4b786da729bc7161d1e4ad047e46c20",
+        "rev": "8db85e43e8860bca3b2735604530b40c92feb4a8",
         "type": "github"
       },
       "original": {
