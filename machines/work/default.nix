@@ -85,7 +85,7 @@
 
   users.users.vdebona = {
     isNormalUser = true;
-    description = "Vivien DE BONA";
+    description = "Vivien";
     extraGroups = [ "networkmanager" "wheel" "docker" "foundryvtt" "foundryvtt-control" ];
     shell = pkgs.fish;
   };
