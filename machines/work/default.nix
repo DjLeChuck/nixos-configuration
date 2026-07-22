@@ -5,6 +5,7 @@
     ../../modules/ansible-vault-passwords.nix
     ../../modules/composer-auth.nix
     ../../modules/ssh-config-private.nix
+    ../../modules/user-password.nix
     ../../modules/vpn-work.nix
     ../../modules/vpn-home.nix
   ];
@@ -12,6 +13,7 @@
   custom.ansibleVaultPasswords.user = "vdebona";
   custom.composerAuth.user = "vdebona";
   custom.sshConfigPrivate.user = "vdebona";
+  custom.userPassword.user = "vdebona";
 
   # Graphical splash covering the LUKS unlock prompt (like Ubuntu), instead
   # of it appearing mid-scroll in the kernel/systemd boot log. The legacy

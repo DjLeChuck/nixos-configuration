@@ -76,3 +76,11 @@ creation_rules:
           - *master_key
           - *host_home
           - *host_work
+
+  # User login password hashes
+  - path_regex: secrets/user-passwords\.yaml$
+    key_groups:
+      - age:
+          - *master_key
+          - *host_home
+          - *host_work

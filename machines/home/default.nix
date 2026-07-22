@@ -8,12 +8,14 @@ in
     ../../modules/ansible-vault-passwords.nix
     ../../modules/composer-auth.nix
     ../../modules/ssh-config-private.nix
+    ../../modules/user-password.nix
     ../../modules/vpn-work.nix
   ];
 
   custom.ansibleVaultPasswords.user = "djlechuck";
   custom.composerAuth.user = "djlechuck";
   custom.sshConfigPrivate.user = "djlechuck";
+  custom.userPassword.user = "djlechuck";
 
   # Keep the profile configured (so it's ready when needed) but don't
   # auto-join it on this machine, unlike the other machines using it.
