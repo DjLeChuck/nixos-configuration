@@ -106,6 +106,15 @@ in
     complete -c cdg -f -a "(path basename $CDG_DIR/*/)"
   '';
 
+  # Composer only recognizes gitlab.com as a GitLab host by default; we are
+  # adding custom one here, forcing https.
+  xdg.configFile."composer/config.json".text = builtins.toJSON {
+    config = {
+      gitlab-domains = [ variables.privateTools.gitlabHost ];
+      gitlab-protocol = "https";
+    };
+  };
+
   # Written by hand instead of via `xdg.desktopEntries`: that module is
   # broken on the pinned home-manager release (it always sets the removed
   # `extraConfig` option internally - https://github.com/nix-community/home-manager,
