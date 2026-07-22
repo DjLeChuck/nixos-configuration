@@ -14,10 +14,10 @@ help:
 	@echo "Valid HOST values: $(HOSTS)"
 
 status:
-	@printf "%-10s %-22s %-16s %-24s\n" "HOST" "hardware-config.nix" "in flake.nix" "age key in .sops.yaml"
+	@printf "%-10s %-22s %-16s %-24s\n" "HOST" "hardware-config.nix" "in nixos-hosts.nix" "age key in .sops.yaml"
 	@for h in $(HOSTS); do \
 		hw="MISSING"; test -f machines/$$h/hardware-configuration.nix && hw="OK"; \
-		fl="MISSING"; grep -qE "^[[:space:]]+$$h = nixpkgs\.lib\.nixosSystem" flake.nix && fl="OK"; \
+		fl="MISSING"; grep -qE "^[[:space:]]+$$h = mkHost" flake-modules/nixos-hosts.nix && fl="OK"; \
 		anchor="host_$$(echo $$h | tr '-' '_')"; \
 		line=$$(grep -E "^[[:space:]]*-[[:space:]]*&$${anchor}[[:space:]]" .sops.yaml); \
 		if [ -z "$$line" ]; then age="MISSING (commented out)"; \
@@ -52,11 +52,11 @@ checklist:
 		echo "            > machines/$(HOST)/hardware-configuration.nix"; \
 	fi; \
 	echo ""; \
-	echo "2) flake.nix registration"; \
-	if grep -qE "^[[:space:]]+$(HOST) = nixpkgs\.lib\.nixosSystem" flake.nix; then \
-		echo "   [DONE] '$(HOST)' has a nixosConfigurations block in flake.nix"; \
+	echo "2) flake-modules/nixos-hosts.nix registration"; \
+	if grep -qE "^[[:space:]]+$(HOST) = mkHost" flake-modules/nixos-hosts.nix; then \
+		echo "   [DONE] '$(HOST)' has a mkHost block in flake-modules/nixos-hosts.nix"; \
 	else \
-		echo "   [TODO] Add a '$(HOST) = nixpkgs.lib.nixosSystem { ... }' block to flake.nix"; \
+		echo "   [TODO] Add a '$(HOST) = mkHost { ... }' block to flake-modules/nixos-hosts.nix"; \
 		echo "          (copy the shape of an existing host block as a template)"; \
 	fi; \
 	echo ""; \

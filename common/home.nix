@@ -1,14 +1,9 @@
-{ config, pkgs, osConfig, toggl-redmine, ... }:
+{ config, pkgs, osConfig, toggl-redmine, self, ... }:
 
 let
   variables = import ./variables.nix;
   gnomeExtensionNames = import ./gnome-extension-names.nix;
-  openvpn3SwitcherExtension = import ../gnome-extensions/openvpn3-switcher { inherit pkgs; };
   privateToolsEnabled = variables.privateTools.enable;
-  privateTools =
-    if privateToolsEnabled
-    then import ../pkgs/private-tools.nix { inherit pkgs variables; }
-    else null;
 
   gitGlobalIgnores = [
     ".idea/"
@@ -98,8 +93,8 @@ in
     wkhtmltopdf
     wmctrl
   ] ++ pkgs.lib.optionals privateToolsEnabled [
-    privateTools.lock-excel
-    privateTools.excel2jsonl
+    self.packages.${pkgs.stdenv.hostPlatform.system}.lock-excel
+    self.packages.${pkgs.stdenv.hostPlatform.system}.excel2jsonl
   ];
 
   xdg.configFile."fish/completions/cdg.fish".text = ''
@@ -176,7 +171,7 @@ in
         (map (name: pkgs.gnomeExtensions.${name}.extensionUuid) (
           gnomeExtensionNames ++ osConfig.custom.gnomeExtensionNames
         ))
-        ++ [ openvpn3SwitcherExtension.extensionUuid ];
+        ++ [ self.packages.${pkgs.stdenv.hostPlatform.system}.openvpn3-switcher.extensionUuid ];
       always-show-log-out = true;
     };
 

@@ -1,14 +1,9 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, self, ... }:
 
 let
   gnomeExtensionNames = import ./gnome-extension-names.nix;
-  openvpn3SwitcherExtension = import ../gnome-extensions/openvpn3-switcher { inherit pkgs; };
   variables = import ./variables.nix;
   privateToolsEnabled = variables.privateTools.enable;
-  privateTools =
-    if privateToolsEnabled
-    then import ../pkgs/private-tools.nix { inherit pkgs variables; }
-    else null;
 in
 {
   imports = [
@@ -45,8 +40,8 @@ in
     "/usr/local/bin/wkhtmltopdf" = "${pkgs.wkhtmltopdf}/bin/wkhtmltopdf";
     "/bin/bash" = "${pkgs.bashInteractive}/bin/bash";
   } // lib.optionalAttrs privateToolsEnabled {
-    "/usr/local/bin/lock-excel" = "${privateTools.lock-excel}/bin/lock-excel";
-    "/usr/local/bin/excel2jsonl" = "${privateTools.excel2jsonl}/bin/excel2jsonl";
+    "/usr/local/bin/lock-excel" = "${self.packages.${pkgs.stdenv.hostPlatform.system}.lock-excel}/bin/lock-excel";
+    "/usr/local/bin/excel2jsonl" = "${self.packages.${pkgs.stdenv.hostPlatform.system}.excel2jsonl}/bin/excel2jsonl";
   };
 
   # Automatic weekly GC instead of manually deciding when it's worth it -
@@ -132,7 +127,7 @@ in
     (map (name: pkgs.gnomeExtensions.${name}) (
       gnomeExtensionNames ++ config.custom.gnomeExtensionNames
     ))
-    ++ [ openvpn3SwitcherExtension ]
+    ++ [ self.packages.${pkgs.stdenv.hostPlatform.system}.openvpn3-switcher ]
     ++ (with pkgs; [
       dconf-editor
       docker-compose

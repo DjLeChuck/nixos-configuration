@@ -19,8 +19,11 @@ This repository contains a declarative, reproducible system configuration for al
 
 ```
 .
-├── flake.nix                         # Entry point - inputs & machine definitions
+├── flake.nix                         # Entry point - inputs, flake-parts bootstrap
 ├── flake.lock                        # Pinned dependency versions
+├── flake-modules/
+│   ├── nixos-hosts.nix                # mkHost builder + nixosConfigurations
+│   └── packages.nix                   # perSystem packages (private tools, GNOME extension)
 ├── common/
 │   ├── configuration.nix             # Shared system config (packages, services, GNOME…)
 │   ├── home.nix                      # Shared Home Manager config (git, fish, bash, ssh…)
@@ -28,12 +31,19 @@ This repository contains a declarative, reproducible system configuration for al
 │       ├── fish_prompt.fish          # Custom fish prompt
 │       └── fish_right_prompt.fish    # Custom fish right prompt (git + clock)
 └── machines/
-    ├── vm-test/
+    ├── vm-common/
+    │   └── default.nix               # Shared VM config (user, ansible-vault, vpn-home)
+    ├── vm-home/
     │   ├── hardware-configuration.nix
-    │   └── default.nix               # VM-specific config
-    └── home/
+    │   └── default.nix               # VM-specific config mirroring `home`
+    ├── vm-work/
+    │   └── hardware-configuration.nix # VM mirroring `work` (no default.nix needed)
+    ├── home/
+    │   ├── hardware-configuration.nix
+    │   └── default.nix               # Personal workstation-specific config (NVIDIA, VirtualBox…)
+    └── work/
         ├── hardware-configuration.nix
-        └── default.nix               # Personal workstation-specific config (NVIDIA, VirtualBox…)
+        └── default.nix               # Work laptop-specific config (Tuxedo, LUKS…)
 ```
 
 ### Usage
@@ -42,11 +52,11 @@ This repository contains a declarative, reproducible system configuration for al
 
 ```bash
 # Build and switch to a machine configuration
-sudo nixos-rebuild switch --flake .#vm-test
+sudo nixos-rebuild switch --flake .#vm-home
 sudo nixos-rebuild switch --flake .#home
 
 # Test without making it the default boot entry
-sudo nixos-rebuild test --flake .#vm-test
+sudo nixos-rebuild test --flake .#vm-home
 
 # Rollback to the previous generation
 sudo nixos-rebuild switch --rollback
@@ -169,7 +179,7 @@ nix flake update
 nix flake update nixpkgs
 
 # Then rebuild
-sudo nixos-rebuild switch --flake .#vm-test
+sudo nixos-rebuild switch --flake .#vm-home
 ```
 
 #### Search for packages or options
