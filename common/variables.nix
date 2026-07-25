@@ -9,7 +9,6 @@
       ssid = "my-ssid";
     };
   };
-  development = "/path/to/development";
   privateTools = {
     enable = false;
     gitlabHost = "gitlab.host.com";

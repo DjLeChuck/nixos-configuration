@@ -13,7 +13,7 @@ let
     ".direnv/"
   ];
   # core.excludesFile patterns are always anchored at the repo root, never at
-  # an absolute filesystem path, so scoping to ~/development needs a gitdir
+  # an absolute filesystem path, so scoping to /srv/development needs a gitdir
   # includeIf (below) pointing at this separate, superset ignore file.
   gitDevelopmentIgnoreFile = pkgs.writeText "gitignore-development" (
     pkgs.lib.concatMapStrings (pattern: pattern + "\n") (
@@ -375,7 +375,7 @@ in
 
     includes = [
       {
-        condition = "gitdir:~/development/php/";
+        condition = "gitdir:/srv/development/php/";
         contents = {
           user = {
             email = "vdebona@umanit.fr";
@@ -384,7 +384,7 @@ in
         };
       }
       {
-        condition = "gitdir:~/development/php/perso/";
+        condition = "gitdir:/srv/development/php/perso/";
         contents = {
           user = {
             email = "djlechuck@gmail.com";
@@ -393,7 +393,7 @@ in
         };
       }
       {
-        condition = "gitdir:~/development/**";
+        condition = "gitdir:/srv/development/**";
         contents.core.excludesFile = "${gitDevelopmentIgnoreFile}";
       }
     ];
@@ -408,7 +408,7 @@ in
 
     config = {
       global.hide_env_diff = true;
-      whitelist.prefix = [ "${config.home.homeDirectory}/development" ];
+      whitelist.prefix = [ "/srv/development" ];
     };
   };
 
@@ -429,7 +429,7 @@ in
 
         # Global variables
         set -gx EDITOR vim
-        set -gx CDG_DIR ~/development/php
+        set -gx CDG_DIR /srv/development/php
         set -gx GPG_TTY (tty)
 
         # Colors (custom theme)

@@ -1,8 +1,5 @@
 { config, lib, pkgs, claude-code, ... }:
 
-let
-  variables = import ../../common/variables.nix;
-in
 {
   imports = [
     ../../modules/ansible-vault-passwords.nix
@@ -27,8 +24,8 @@ in
     fsType = "ext4";
   };
 
-  fileSystems."/home/djlechuck/development" = {
-    device = variables.development;
+  fileSystems."/srv/development" = {
+    device = "/mnt/lechuck/development";
     fsType = "none";
     options = [
       "bind"
