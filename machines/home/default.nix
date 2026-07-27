@@ -136,6 +136,8 @@
           - click
       '';
 
+      programs.discord.enable = true;
+
       # networking.hostName ("djlechuck-linux") doesn't match this flake's
       # nixosConfigurations attribute name ("home"), so `nh os` can't infer
       # it automatically — pin it explicitly.
