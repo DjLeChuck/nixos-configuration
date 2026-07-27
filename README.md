@@ -40,7 +40,7 @@ This repository contains a declarative, reproducible system configuration for al
     │   └── hardware-configuration.nix # VM mirroring `work` (no default.nix needed)
     ├── home/
     │   ├── hardware-configuration.nix
-    │   └── default.nix               # Personal workstation-specific config (NVIDIA, VirtualBox…)
+    │   └── default.nix               # Personal workstation-specific config
     └── work/
         ├── hardware-configuration.nix
         └── default.nix               # Work laptop-specific config (Tuxedo, LUKS…)

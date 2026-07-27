@@ -54,16 +54,11 @@
   };
   hardware.graphics.enable32Bit = true;
 
-  virtualisation.virtualbox.host = {
-    enable = true;
-    enableExtensionPack = true;
-  };
-
   users.users.djlechuck = {
     isNormalUser = true;
     uid = 1000;
     description = "DjLeChuck";
-    extraGroups = [ "networkmanager" "wheel" "docker" "vboxusers" "foundryvtt" "foundryvtt-control" ];
+    extraGroups = [ "networkmanager" "wheel" "docker" "foundryvtt" "foundryvtt-control" ];
     shell = pkgs.fish;
   };
   users.groups.djlechuck.gid = 1000;
