@@ -1,4 +1,4 @@
-HOSTS := home work vm-home vm-work
+HOSTS := home work
 
 .PHONY: help status checklist vars-check sops-refs
 .DEFAULT_GOAL := help

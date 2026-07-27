@@ -42,36 +42,6 @@ let
 in
 {
   flake.nixosConfigurations = {
-    # VirtualBox VM mirroring `home`
-    vm-home = mkHost {
-      hostName = "vm-home";
-      homeUser = "djlechuck";
-      bootloader = {
-        boot.loader.grub.enable = true;
-        boot.loader.grub.device = "/dev/sda";
-      };
-      modules = [
-        ../machines/vm-home/hardware-configuration.nix
-        ../machines/vm-common/default.nix
-        ../machines/vm-home/default.nix
-      ];
-    };
-
-    # VirtualBox VM mirroring `work`
-    vm-work = mkHost {
-      hostName = "vm-work";
-      homeUser = "djlechuck";
-      withFoundry = false;
-      bootloader = {
-        boot.loader.grub.enable = true;
-        boot.loader.grub.device = "/dev/sda";
-      };
-      modules = [
-        ../machines/vm-work/hardware-configuration.nix
-        ../machines/vm-common/default.nix
-      ];
-    };
-
     # Personal workstation
     home = mkHost {
       hostName = "djlechuck-linux";

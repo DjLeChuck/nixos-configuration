@@ -12,8 +12,6 @@ This repository contains a declarative, reproducible system configuration for al
 | --------- | -------------------------------- | ------------------ | -------------------------- |
 | `home`    | Personal workstation             | systemd-boot / EFI | NVIDIA RTX 3080 Ti         |
 | `work`    | Work laptop (Tuxedo)             | systemd-boot / EFI | Integrated (Tuxedo laptop) |
-| `vm-home` | VirtualBox VM for testing `home` | GRUB / BIOS        | Virtual                    |
-| `vm-work` | VirtualBox VM for testing `work` | GRUB / BIOS        | Virtual                    |
 
 ### Structure
 
@@ -31,13 +29,6 @@ This repository contains a declarative, reproducible system configuration for al
 │       ├── fish_prompt.fish          # Custom fish prompt
 │       └── fish_right_prompt.fish    # Custom fish right prompt (git + clock)
 └── machines/
-    ├── vm-common/
-    │   └── default.nix               # Shared VM config (user, ansible-vault, vpn-home)
-    ├── vm-home/
-    │   ├── hardware-configuration.nix
-    │   └── default.nix               # VM-specific config mirroring `home`
-    ├── vm-work/
-    │   └── hardware-configuration.nix # VM mirroring `work` (no default.nix needed)
     ├── home/
     │   ├── hardware-configuration.nix
     │   └── default.nix               # Personal workstation-specific config
@@ -52,11 +43,10 @@ This repository contains a declarative, reproducible system configuration for al
 
 ```bash
 # Build and switch to a machine configuration
-sudo nixos-rebuild switch --flake .#vm-home
 sudo nixos-rebuild switch --flake .#home
 
 # Test without making it the default boot entry
-sudo nixos-rebuild test --flake .#vm-home
+sudo nixos-rebuild test --flake .#home
 
 # Rollback to the previous generation
 sudo nixos-rebuild switch --rollback
@@ -179,7 +169,7 @@ nix flake update
 nix flake update nixpkgs
 
 # Then rebuild
-sudo nixos-rebuild switch --flake .#vm-home
+sudo nixos-rebuild switch --flake .#home
 ```
 
 #### Search for packages or options

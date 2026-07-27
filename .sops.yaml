@@ -8,12 +8,6 @@ keys:
   # Age key of work
   - &host_work age1v2xze2qjp0auq62mr9r6a5h22ztfllclg0f0qpk7ngmzy9vuc5rq3cxejq
 
-  # Age key of vm-home
-  - &host_vm_home age1dqlmhrmkdvllf3xqcxpsxh95jtxndfa2m6jjymc8zy9cweew5g7svd45v7
-
-  # Age key of vm-work
-  # - &host_vm_work age1TODO_REPLACE_AFTER_REBUILD_VM_WORK
-
 creation_rules:
   # Secrets shared across multiple machines
   - path_regex: secrets/common\.yaml$
@@ -22,8 +16,6 @@ creation_rules:
           - *master_key
           - *host_home
           - *host_work
-          - *host_vm_home
-          #- *host_vm_work
 
   # OpenVPN3 work VPN configs (raw .ovpn files, sops binary format)
   - path_regex: secrets/vpn-work/.*\.ovpn$
@@ -32,7 +24,6 @@ creation_rules:
           - *master_key
           - *host_home
           - *host_work
-          - *host_vm_home
 
   # WireGuard home VPN config (raw .conf file, sops binary format)
   - path_regex: secrets/vpn-home/.*\.conf$
@@ -40,8 +31,6 @@ creation_rules:
       - age:
           - *master_key
           - *host_work
-          - *host_vm_home
-          #- *host_vm_work
 
   # Private GitLab tools
   - path_regex: secrets/private-tools\.yaml$
@@ -66,8 +55,6 @@ creation_rules:
           - *master_key
           - *host_home
           - *host_work
-          - *host_vm_home
-          #- *host_vm_work
 
   # Composer auth tokens (GitLab + GitHub)
   - path_regex: secrets/composer-auth\.yaml$
