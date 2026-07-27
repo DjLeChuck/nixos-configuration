@@ -45,11 +45,11 @@ in
   };
 
   # Automatic weekly GC instead of manually deciding when it's worth it -
-  # keeps 30 days of rollback-able generations, purges everything older.
+  # keeps 15 days of rollback-able generations, purges everything older.
   nix.gc = {
     automatic = true;
     dates = "weekly";
-    options = "--delete-older-than 30d";
+    options = "--delete-older-than 15d";
   };
 
   sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
