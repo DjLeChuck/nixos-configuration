@@ -27,8 +27,8 @@ in
   ];
 
   # Lets generically-linked prebuilt Linux binaries run on NixOS (e.g. the
-  # actual node/yarn runtimes Volta downloads at "volta install" time - the
-  # `volta`/`node`/`yarn` shims themselves are fine, but what they exec into
+  # actual node/yarn runtimes mise downloads when installing a tool - the
+  # `mise`/`node`/`yarn` shims themselves are fine, but what they exec into
   # isn't a Nix-built binary and expects a standard FHS dynamic linker).
   programs.nix-ld.enable = true;
 

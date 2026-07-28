@@ -89,7 +89,6 @@ in
     tree
     trivy
     vlc
-    volta
     wkhtmltopdf
     wmctrl
   ] ++ pkgs.lib.optionals privateToolsEnabled [
@@ -610,18 +609,10 @@ in
     EDITOR = "vim";
     VISUAL = "vim";
     SSH_AUTH_SOCK = "${config.home.homeDirectory}/.bitwarden-ssh-agent.sock";
-    VOLTA_HOME = "${config.home.homeDirectory}/.volta";
   };
 
-  home.sessionPath = [ "${config.home.homeDirectory}/.volta/bin" ];
-
-  # Volta's own shims (node/yarn/npm) auto-install whatever version a project
-  # pins in its package.json's "volta" field, but they need a default
-  # toolchain installed first to work at all outside of a pinned project -
-  # this provisions that default once, without re-downloading on every switch.
-  home.activation.voltaDefaultToolchain = config.lib.dag.entryAfter [ "writeBoundary" ] ''
-    if [ ! -d "${config.home.homeDirectory}/.volta/tools/image/node" ]; then
-      $DRY_RUN_CMD ${pkgs.volta}/bin/volta install node yarn
-    fi
-  '';
+  programs.mise = {
+    enable = true;
+    enableFishIntegration = true;
+  };
 }
