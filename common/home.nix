@@ -619,6 +619,7 @@ in
       settings = {
         all_compile = false;
         node.compile = false;
+        trusted_config_paths = [ "/srv/development" ];
       };
     };
   };
