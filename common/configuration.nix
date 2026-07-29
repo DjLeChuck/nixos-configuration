@@ -37,7 +37,6 @@ in
     "/usr/bin/pngquant" = "${pkgs.pngquant}/bin/pngquant";
     "/usr/bin/jpegoptim" = "${pkgs.jpegoptim}/bin/jpegoptim";
     "/usr/bin/cwebp" = "${pkgs.libwebp}/bin/cwebp";
-    "/usr/local/bin/wkhtmltopdf" = "${pkgs.wkhtmltopdf}/bin/wkhtmltopdf";
     "/bin/bash" = "${pkgs.bashInteractive}/bin/bash";
   } // lib.optionalAttrs privateToolsEnabled {
     "/usr/local/bin/lock-excel" = "${self.packages.${pkgs.stdenv.hostPlatform.system}.lock-excel}/bin/lock-excel";

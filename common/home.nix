@@ -89,7 +89,6 @@ in
     tree
     trivy
     vlc
-    wkhtmltopdf
     wmctrl
   ] ++ pkgs.lib.optionals privateToolsEnabled [
     self.packages.${pkgs.stdenv.hostPlatform.system}.lock-excel
