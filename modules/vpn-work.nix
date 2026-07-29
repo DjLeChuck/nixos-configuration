@@ -53,13 +53,15 @@ in
   };
 
   systemd.services.openvpn3-suspend-disconnect = {
-    description = "Disconnect any active OpenVPN3 work VPN session before suspend";
+    description = "Disconnect any active OpenVPN3 work VPN session around suspend/resume";
     wantedBy = [ "sleep.target" ];
     before = [ "sleep.target" ];
     unitConfig.StopWhenUnneeded = true;
     serviceConfig = {
       Type = "oneshot";
+      RemainAfterExit = true;
       ExecStart = "${suspendDisconnectScript}";
+      ExecStop = "${suspendDisconnectScript}";
     };
   };
 }
