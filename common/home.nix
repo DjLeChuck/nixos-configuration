@@ -68,6 +68,7 @@ in
 
   home.packages = with pkgs; [
     bitwarden-desktop
+    bitwarden-cli
     brave
     gimp
     gitflow
