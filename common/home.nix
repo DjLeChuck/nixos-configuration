@@ -16,12 +16,7 @@ let
   # an absolute filesystem path, so scoping to /srv/development needs a gitdir
   # includeIf (below) pointing at this separate, superset ignore file.
   gitDevelopmentIgnoreFile = pkgs.writeText "gitignore-development" (
-    pkgs.lib.concatMapStrings (pattern: pattern + "\n") (
-      gitGlobalIgnores
-      ++ [
-        "**/.envrc"
-      ]
-    )
+    pkgs.lib.concatMapStrings (pattern: pattern + "\n") gitGlobalIgnores
   );
 
   # https://github.com/sanduhrs/phpstorm-url-handler - lets browser links like
