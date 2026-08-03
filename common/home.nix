@@ -475,7 +475,7 @@ in
 
     shellAliases = {
       ll = "ls -alhs";
-      claude-home = "CLAUDE_CONFIG_DIR=~/.claude-home claude";
+      cc = "claude";
     };
 
     functions = {
