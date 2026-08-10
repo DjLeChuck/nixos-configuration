@@ -158,4 +158,6 @@
     localNetworkGameTransfers.openFirewall = true;
     remotePlay.openFirewall = true;
   };
+
+  hardware.xone.enable = true;
 }
