@@ -56,6 +56,7 @@ in
           # Native 4K resolution makes GRUB's fixed-size font tiny; a
           # lower resolution keeps text readable (upscaled by the panel).
           gfxmodeEfi = "1920x1080;auto";
+          configurationLimit = 5;
         };
         boot.loader.efi.canTouchEfiVariables = true;
       };
