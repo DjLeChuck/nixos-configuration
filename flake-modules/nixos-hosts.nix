@@ -1,7 +1,7 @@
 { inputs, self, ... }:
 
 let
-  inherit (inputs) nixpkgs home-manager sops-nix foundryvtt claude-code toggl-redmine;
+  inherit (inputs) nixpkgs home-manager sops-nix foundryvtt claude-code toggl-redmine direnv-ide-shim;
 
   # Single place where every host's sops-nix / foundryvtt / home-manager
   # wiring happens - each host below only states what actually differs.
@@ -35,7 +35,7 @@ let
         home-manager.useGlobalPkgs = true;
         home-manager.useUserPackages = true;
         home-manager.backupFileExtension = "bck";
-        home-manager.extraSpecialArgs = { inherit toggl-redmine self; };
+        home-manager.extraSpecialArgs = { inherit toggl-redmine direnv-ide-shim self; };
         home-manager.users.${homeUser} = import ../common/home.nix;
       };
     };

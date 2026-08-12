@@ -1,4 +1,4 @@
-{ config, pkgs, osConfig, toggl-redmine, self, ... }:
+{ config, pkgs, osConfig, toggl-redmine, direnv-ide-shim, self, ... }:
 
 let
   variables = import ./variables.nix;
@@ -82,6 +82,7 @@ in
     spotify
     symfony-cli
     toggl-redmine.packages.${pkgs.stdenv.hostPlatform.system}.default
+    direnv-ide-shim.packages.${pkgs.stdenv.hostPlatform.system}.default
     tree
     trivy
     vlc

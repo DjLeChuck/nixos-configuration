@@ -33,6 +33,11 @@
       url = "github:umanit/toggl-redmine";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    direnv-ide-shim = {
+      url = "github:umanit/direnv-ide-shim";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs@{ flake-parts, ... }:

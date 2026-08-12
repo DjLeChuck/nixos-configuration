@@ -21,6 +21,26 @@
         "type": "github"
       }
     },
+    "direnv-ide-shim": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1786551709,
+        "narHash": "sha256-LwdVfuUfTcuWngePiovbGn1Sil0tPE27DvzJi8VTM+Y=",
+        "owner": "umanit",
+        "repo": "direnv-ide-shim",
+        "rev": "368f9161ead2077af01dd63eede920fe7b4f33de",
+        "type": "github"
+      },
+      "original": {
+        "owner": "umanit",
+        "repo": "direnv-ide-shim",
+        "type": "github"
+      }
+    },
     "flake-parts": {
       "inputs": {
         "nixpkgs-lib": [
@@ -119,6 +139,7 @@
     "root": {
       "inputs": {
         "claude-code": "claude-code",
+        "direnv-ide-shim": "direnv-ide-shim",
         "flake-parts": "flake-parts",
         "foundryvtt": "foundryvtt",
         "home-manager": "home-manager",
