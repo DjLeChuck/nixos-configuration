@@ -605,6 +605,9 @@ in
     EDITOR = "vim";
     VISUAL = "vim";
     SSH_AUTH_SOCK = "${config.home.homeDirectory}/.bitwarden-ssh-agent.sock";
+    # claude-code's nix wrapper hardcodes DISABLE_AUTOUPDATER=1, which also
+    # silently disables plugin auto-updates; this re-enables just those.
+    FORCE_AUTOUPDATE_PLUGINS = "1";
   };
 
   programs.mise = {
