@@ -75,6 +75,8 @@ in
     libwebp
     mattermost-desktop
     meld
+    nixd
+    nixfmt
     phpstormUrlHandler
     pngquant
     postman
