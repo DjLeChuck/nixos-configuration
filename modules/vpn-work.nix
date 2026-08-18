@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   configs = {
@@ -8,12 +13,14 @@ let
 
   importScript = pkgs.writeShellScript "openvpn3-import-configs" ''
     set -eu
-    ${lib.concatStringsSep "\n" (lib.mapAttrsToList (name: path: ''
-      if ! ${pkgs.openvpn3}/bin/openvpn3 config-manage --config "${name}" --exists; then
-        ${pkgs.openvpn3}/bin/openvpn3 config-import --config "${path}" --name "${name}" --persistent
-      fi
-      ${pkgs.openvpn3}/bin/openvpn3 config-acl --config "${name}" --public-access true
-    '') configs)}
+    ${lib.concatStringsSep "\n" (
+      lib.mapAttrsToList (name: path: ''
+        if ! ${pkgs.openvpn3}/bin/openvpn3 config-manage --config "${name}" --exists; then
+          ${pkgs.openvpn3}/bin/openvpn3 config-import --config "${path}" --name "${name}" --persistent
+        fi
+        ${pkgs.openvpn3}/bin/openvpn3 config-acl --config "${name}" --public-access true
+      '') configs
+    )}
   '';
 
   suspendDisconnectScript = pkgs.writeShellScript "openvpn3-suspend-disconnect" ''

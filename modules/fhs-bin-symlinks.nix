@@ -4,7 +4,12 @@
 # the binary stays managed/installed the normal Nix way while also being
 # reachable at the path that tooling expects. Populate custom.fhsBinSymlinks
 # with more entries as needed.
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.custom.fhsBinSymlinks;

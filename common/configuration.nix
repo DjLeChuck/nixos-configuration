@@ -1,4 +1,10 @@
-{ config, lib, pkgs, self, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  self,
+  ...
+}:
 
 let
   gnomeExtensionNames = import ./gnome-extension-names.nix;
@@ -10,7 +16,8 @@ in
     ../modules/fhs-bin-symlinks.nix
     ../modules/gnome-extensions.nix
     ../modules/wifi-home.nix
-  ] ++ lib.optional privateToolsEnabled ../modules/private-tools.nix;
+  ]
+  ++ lib.optional privateToolsEnabled ../modules/private-tools.nix;
 
   # Fails fast with a clear message instead of a cryptic sha256 mismatch or
   # 401 deep in a fetchurl build log when privateTools.enable is flipped on
@@ -38,9 +45,14 @@ in
     "/usr/bin/jpegoptim" = "${pkgs.jpegoptim}/bin/jpegoptim";
     "/usr/bin/cwebp" = "${pkgs.libwebp}/bin/cwebp";
     "/bin/bash" = "${pkgs.bashInteractive}/bin/bash";
-  } // lib.optionalAttrs privateToolsEnabled {
-    "/usr/local/bin/lock-excel" = "${self.packages.${pkgs.stdenv.hostPlatform.system}.lock-excel}/bin/lock-excel";
-    "/usr/local/bin/excel2jsonl" = "${self.packages.${pkgs.stdenv.hostPlatform.system}.excel2jsonl}/bin/excel2jsonl";
+  }
+  // lib.optionalAttrs privateToolsEnabled {
+    "/usr/local/bin/lock-excel" = "${
+      self.packages.${pkgs.stdenv.hostPlatform.system}.lock-excel
+    }/bin/lock-excel";
+    "/usr/local/bin/excel2jsonl" = "${
+      self.packages.${pkgs.stdenv.hostPlatform.system}.excel2jsonl
+    }/bin/excel2jsonl";
   };
 
   # Automatic weekly GC instead of manually deciding when it's worth it -
@@ -248,7 +260,10 @@ in
   zramSwap.enable = true;
 
   nix.settings = {
-    experimental-features = [ "nix-command" "flakes" ];
+    experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
   };
 
   nixpkgs.config.allowUnfree = true;

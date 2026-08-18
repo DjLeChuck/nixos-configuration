@@ -7,7 +7,9 @@ let
   importScript = pkgs.writeShellScript "networkmanager-import-vpn-home" ''
     set -eu
     if ! ${pkgs.networkmanager}/bin/nmcli -g NAME connection show | grep -qx "${displayName}"; then
-      ${pkgs.networkmanager}/bin/nmcli connection import type wireguard file "${config.sops.secrets."vpn-home-config".path}"
+      ${pkgs.networkmanager}/bin/nmcli connection import type wireguard file "${
+        config.sops.secrets."vpn-home-config".path
+      }"
       ${pkgs.networkmanager}/bin/nmcli connection modify "${importedName}" connection.id "${displayName}"
     fi
     ${pkgs.networkmanager}/bin/nmcli connection modify "${displayName}" connection.autoconnect no

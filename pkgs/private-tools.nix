@@ -7,7 +7,11 @@
 
 let
   fetchPrivateBinary =
-    { name, url, sha256 }:
+    {
+      name,
+      url,
+      sha256,
+    }:
     pkgs.stdenvNoCC.mkDerivation {
       pname = name;
       version = "latest";

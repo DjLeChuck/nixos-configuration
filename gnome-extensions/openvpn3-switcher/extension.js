@@ -129,7 +129,9 @@ const OpenVPN3Indicator = GObject.registerClass(
       // padding/margin meant for a lone icon; wrapping it in the same
       // indicators box the built-in indicators use keeps its rendered size
       // in line with them.
-      const box = new St.BoxLayout({ style_class: "panel-status-indicators-box" });
+      const box = new St.BoxLayout({
+        style_class: "panel-status-indicators-box",
+      });
       box.add_child(this._icon);
       this.add_child(box);
 
@@ -187,7 +189,8 @@ const OpenVPN3Indicator = GObject.registerClass(
         for (const name of allNames) {
           const was = isConnected(oldStatus.get(name) ?? "");
           const now = isConnected(statuses.get(name) ?? "");
-          if (!was && now) pendingNotifications.push([_("VPN connected"), name]);
+          if (!was && now)
+            pendingNotifications.push([_("VPN connected"), name]);
           else if (was && !now)
             pendingNotifications.push([_("VPN disconnected"), name]);
         }
@@ -215,8 +218,7 @@ const OpenVPN3Indicator = GObject.registerClass(
       // _refresh(), so this is the single place that decides start vs. stop.
       // Fast while pending (auth window, responsiveness matters), slow once
       // fully connected (just watching for a drop).
-      if (pendingNames.length > 0)
-        this._startPolling(PENDING_POLL_INTERVAL_MS);
+      if (pendingNames.length > 0) this._startPolling(PENDING_POLL_INTERVAL_MS);
       else if (connectedNames.length > 0)
         this._startPolling(CONNECTED_POLL_INTERVAL_MS);
       else this._stopPolling();

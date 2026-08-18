@@ -1,4 +1,10 @@
-{ config, lib, pkgs, claude-code, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  claude-code,
+  ...
+}:
 
 {
   imports = [
@@ -58,7 +64,13 @@
     isNormalUser = true;
     uid = 1000;
     description = "DjLeChuck";
-    extraGroups = [ "networkmanager" "wheel" "docker" "foundryvtt" "foundryvtt-control" ];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "docker"
+      "foundryvtt"
+      "foundryvtt-control"
+    ];
     shell = pkgs.fish;
   };
   users.groups.djlechuck.gid = 1000;

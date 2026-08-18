@@ -1,4 +1,12 @@
-{ config, pkgs, osConfig, toggl-redmine, direnv-ide-shim, self, ... }:
+{
+  config,
+  pkgs,
+  osConfig,
+  toggl-redmine,
+  direnv-ide-shim,
+  self,
+  ...
+}:
 
 let
   variables = import ./variables.nix;
@@ -78,38 +86,41 @@ in
 {
   home.stateVersion = "26.05";
 
-  home.packages = with pkgs; [
-    bitwarden-desktop
-    bitwarden-cli
-    brave
-    gimp
-    gitflow
-    jetbrains.goland
-    jetbrains.phpstorm
-    jpegoptim
-    k6
-    libreoffice
-    libwebp
-    mattermost-desktop
-    meld
-    nixd
-    nixfmt
-    phpstormUrlHandler
-    pngquant
-    postman
-    signal-desktop
-    spotify
-    symfony-cli
-    toggl-redmine.packages.${pkgs.stdenv.hostPlatform.system}.default
-    direnv-ide-shim.packages.${pkgs.stdenv.hostPlatform.system}.default
-    tree
-    trivy
-    vlc
-    wmctrl
-  ] ++ pkgs.lib.optionals privateToolsEnabled [
-    self.packages.${pkgs.stdenv.hostPlatform.system}.lock-excel
-    self.packages.${pkgs.stdenv.hostPlatform.system}.excel2jsonl
-  ];
+  home.packages =
+    with pkgs;
+    [
+      bitwarden-desktop
+      bitwarden-cli
+      brave
+      gimp
+      gitflow
+      jetbrains.goland
+      jetbrains.phpstorm
+      jpegoptim
+      k6
+      libreoffice
+      libwebp
+      mattermost-desktop
+      meld
+      nixd
+      nixfmt
+      phpstormUrlHandler
+      pngquant
+      postman
+      signal-desktop
+      spotify
+      symfony-cli
+      toggl-redmine.packages.${pkgs.stdenv.hostPlatform.system}.default
+      direnv-ide-shim.packages.${pkgs.stdenv.hostPlatform.system}.default
+      tree
+      trivy
+      vlc
+      wmctrl
+    ]
+    ++ pkgs.lib.optionals privateToolsEnabled [
+      self.packages.${pkgs.stdenv.hostPlatform.system}.lock-excel
+      self.packages.${pkgs.stdenv.hostPlatform.system}.excel2jsonl
+    ];
 
   xdg.configFile."fish/completions/cdg.fish".text = ''
     complete -c cdg -f -a "(path basename $CDG_DIR/*/)"
@@ -345,7 +356,10 @@ in
       };
       # The "nix" extension registers both nil and nixd; nixd is picked
       # explicitly for its flake-aware eval-based completion/hover.
-      languages.Nix.language_servers = [ "nixd" "!nil" ];
+      languages.Nix.language_servers = [
+        "nixd"
+        "!nil"
+      ];
       lsp.nixd.binary.path = "${pkgs.nixd}/bin/nixd";
     };
   };

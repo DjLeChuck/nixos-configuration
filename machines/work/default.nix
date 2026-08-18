@@ -1,4 +1,9 @@
-{ config, pkgs, claude-code, ... }:
+{
+  config,
+  pkgs,
+  claude-code,
+  ...
+}:
 
 {
   imports = [
@@ -25,7 +30,11 @@
 
   boot.consoleLogLevel = 3;
   boot.initrd.verbose = false;
-  boot.kernelParams = [ "quiet" "udev.log_level=3" "rd.udev.log_level=3" ];
+  boot.kernelParams = [
+    "quiet"
+    "udev.log_level=3"
+    "rd.udev.log_level=3"
+  ];
 
   # Every generation shares the same systemd-boot menu title ("NixOS"), so
   # systemd-boot disambiguates entries by appending system.nixos.label
@@ -88,7 +97,13 @@
   users.users.vdebona = {
     isNormalUser = true;
     description = "Vivien";
-    extraGroups = [ "networkmanager" "wheel" "docker" "foundryvtt" "foundryvtt-control" ];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "docker"
+      "foundryvtt"
+      "foundryvtt-control"
+    ];
     shell = pkgs.fish;
   };
 

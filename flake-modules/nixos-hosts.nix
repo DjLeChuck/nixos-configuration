@@ -1,17 +1,26 @@
 { inputs, self, ... }:
 
 let
-  inherit (inputs) nixpkgs home-manager sops-nix foundryvtt claude-code toggl-redmine direnv-ide-shim;
+  inherit (inputs)
+    nixpkgs
+    home-manager
+    sops-nix
+    foundryvtt
+    claude-code
+    toggl-redmine
+    direnv-ide-shim
+    ;
 
   # Single place where every host's sops-nix / foundryvtt / home-manager
   # wiring happens - each host below only states what actually differs.
   mkHost =
-    { hostName
-    , bootloader
-    , modules ? [ ]
-    , homeUser ? null
-    , withFoundry ? true
-    , stateVersion ? "26.05"
+    {
+      hostName,
+      bootloader,
+      modules ? [ ],
+      homeUser ? null,
+      withFoundry ? true,
+      stateVersion ? "26.05",
     }:
     nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
@@ -27,7 +36,10 @@ let
       ++ [ sops-nix.nixosModules.sops ]
       ++ nixpkgs.lib.optional withFoundry foundryvtt.nixosModules.default
       ++ [
-        { networking.hostName = hostName; system.stateVersion = stateVersion; }
+        {
+          networking.hostName = hostName;
+          system.stateVersion = stateVersion;
+        }
         bootloader
         home-manager.nixosModules.home-manager
       ]

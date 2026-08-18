@@ -8,17 +8,17 @@ let
   variables = import ../common/variables.nix;
 in
 {
-  perSystem = { pkgs, lib, ... }:
+  perSystem =
+    { pkgs, lib, ... }:
     let
       privateTools = import ../pkgs/private-tools.nix { inherit pkgs variables; };
     in
     {
-      packages =
-        {
-          openvpn3-switcher = import ../gnome-extensions/openvpn3-switcher { inherit pkgs; };
-        }
-        // lib.optionalAttrs variables.privateTools.enable {
-          inherit (privateTools) lock-excel excel2jsonl;
-        };
+      packages = {
+        openvpn3-switcher = import ../gnome-extensions/openvpn3-switcher { inherit pkgs; };
+      }
+      // lib.optionalAttrs variables.privateTools.enable {
+        inherit (privateTools) lock-excel excel2jsonl;
+      };
     };
 }
