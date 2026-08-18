@@ -42,16 +42,33 @@ let
     # Get the line number.
     line=$(echo "''${arg}" | sed -r "s/''${pattern}/\4/")
 
-    # Check if phpstorm|pstorm command exists.
-    if type phpstorm > /dev/null; then
-        /usr/bin/env phpstorm --line "''${line}" "''${file}"
-    elif type pstorm > /dev/null; then
-        /usr/bin/env pstorm --line "''${line}" "''${file}"
+    # PhpStorm's CLI only accepts --line when the first argument is a project
+    # directory: since 2026.2 the launcher rejects `phpstorm --line <n> <file>`
+    # outright with "unrecognized option: --line". Walk up from the file to the
+    # nearest .idea/ to recover the project the file belongs to.
+    project=""
+    dir=$(dirname "''${file}")
+    while [ -n "''${dir}" ] && [ "''${dir}" != "/" ]; do
+        if [ -d "''${dir}/.idea" ]; then
+            project="''${dir}"
+            break
+        fi
+        dir=$(dirname "''${dir}")
+    done
+
+    if [ -n "''${project}" ]; then
+        ${pkgs.jetbrains.phpstorm}/bin/phpstorm "''${project}" --line "''${line}" "''${file}"
+    else
+        # No project found: at least open the file, without jumping to the line.
+        ${pkgs.jetbrains.phpstorm}/bin/phpstorm "''${file}"
     fi
 
-    if type wmctrl > /dev/null; then
-        filename=$(basename "$file")
-        /usr/bin/env wmctrl -i -a $(wmctrl -l | grep "''${filename}" | tail -n 1 | cut -d ' ' -f1)
+    # Raising the window is best-effort: without the guard, an empty match makes
+    # `wmctrl -i -a` swallow the next argument and fail.
+    filename=$(basename "''${file}")
+    window=$(${pkgs.wmctrl}/bin/wmctrl -l | grep -F "''${filename}" | tail -n 1 | cut -d ' ' -f1)
+    if [ -n "''${window}" ]; then
+        ${pkgs.wmctrl}/bin/wmctrl -i -a "''${window}"
     fi
 
     exit 0
