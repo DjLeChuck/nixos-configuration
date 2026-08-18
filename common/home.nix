@@ -499,11 +499,9 @@ in
       dcd = "docker compose down";
       dce = "docker compose exec";
       dcu = "docker compose up";
-      sf = "symfony";
-      sfc = "symfony console";
+      sfc = "php bin/console";
       sfp = "symfony proxy:start";
       sfs = "symfony serve";
-      slc = "symfony console c:c && symfony console lint:cont";
       yid = "yarn install && yarn dev";
     };
 
