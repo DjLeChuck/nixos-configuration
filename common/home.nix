@@ -82,6 +82,98 @@ let
     exit 0
   '';
 
+  # Pushes/pulls ~/.claude/{projects,plans,CLAUDE.md} to the shared pCloud
+  # remote configured by modules/rclone-pcloud.nix. Wired to Claude Code's
+  # SessionStart/SessionEnd hooks (see ~/.claude/settings.json on each
+  # machine) plus the claude-sync-push timer below as a crash safety net.
+  # `--update` only overwrites older files and never deletes, since the two
+  # machines are never used at the same time - a plain additive merge.
+  claudeSync = pkgs.writeShellScriptBin "claude-sync" ''
+    if [ "''${FLOCKED:-}" != "1" ]; then
+      exec env FLOCKED=1 ${pkgs.util-linux}/bin/flock -n /tmp/claude-code-sync.lock "$0" "$@"
+    fi
+
+    direction="''${1:-}"
+    remote="pcloud:claude-code-sync"
+    local_dir="$HOME/.claude"
+    opts=(--update --contimeout 5s --timeout 10s --retries 1 -v)
+    transferred=0
+    failed=0
+
+    # Claude Code keys ~/.claude/projects/<slug> off a literal transform of
+    # the project's absolute path (every non-alnum char becomes "-"). Two
+    # machines with different usernames get a different slug for the same
+    # $HOME-rooted project (this nixos-config checkout included) and would
+    # otherwise never merge. Swap the local $HOME prefix for a stable,
+    # machine-independent one before anything leaves this machine, and swap
+    # it back on the way in, so any $HOME-rooted project - present or future -
+    # merges the same way the /srv/development-rooted ones already do.
+    home_slug="$(printf '%s' "$HOME" | ${pkgs.gnused}/bin/sed -E 's/[^A-Za-z0-9]/-/g')"
+    canonical_slug="-HOMESYNC"
+
+    run_rclone() {
+      local out rc
+      out="$(${pkgs.rclone}/bin/rclone "$@" 2>&1)"
+      rc=$?
+      # 3/4 = directory/file not found: expected on a first-ever sync before
+      # the remote has anything yet, not a real failure.
+      if [ "$rc" != 0 ] && [ "$rc" != 3 ] && [ "$rc" != 4 ]; then
+        failed=1
+      fi
+      transferred=$((transferred + $(printf '%s\n' "$out" | ${pkgs.gnugrep}/bin/grep -c ': Copied (')))
+    }
+
+    sync_one() {
+      case "$1:$direction" in
+        dir:pull) run_rclone copy "$remote/$2" "$local_dir/$2" "''${opts[@]}" --create-empty-src-dirs --exclude "/$canonical_slug*/**" ;;
+        dir:push) run_rclone copy "$local_dir/$2" "$remote/$2" "''${opts[@]}" --exclude "/$home_slug-*/**" ;;
+        file:pull) run_rclone copyto "$remote/$2" "$local_dir/$2" "''${opts[@]}" ;;
+        file:push) run_rclone copyto "$local_dir/$2" "$remote/$2" "''${opts[@]}" ;;
+      esac
+    }
+
+    # Re-homes $HOME-rooted project dirs to/from the canonical slug, one
+    # rclone invocation per project so source and destination basenames can
+    # differ - no local renaming involved, so a crash mid-sync can't corrupt
+    # a live project directory.
+    sync_home_projects() {
+      case "$direction" in
+        push)
+          for d in "$local_dir"/projects/"$home_slug"-*/; do
+            [ -d "$d" ] || continue
+            name="$(${pkgs.coreutils}/bin/basename "$d")"
+            run_rclone copy "$d" "$remote/projects/$canonical_slug''${name#$home_slug}" "''${opts[@]}"
+          done
+          ;;
+        pull)
+          while IFS= read -r canon; do
+            [ -n "$canon" ] || continue
+            run_rclone copy "$remote/projects/$canon" "$local_dir/projects/$home_slug''${canon#$canonical_slug}" "''${opts[@]}" --create-empty-src-dirs
+          done < <(${pkgs.rclone}/bin/rclone lsf "$remote/projects" --dirs-only 2>/dev/null | ${pkgs.gnugrep}/bin/grep "^$canonical_slug" | ${pkgs.gnused}/bin/sed 's:/$::')
+          ;;
+      esac
+    }
+
+    case "$direction" in
+      pull|push)
+        sync_one dir projects
+        sync_home_projects
+        sync_one dir plans
+        sync_one file CLAUDE.md
+        ;;
+      *)
+        echo "usage: claude-sync {pull|push}" >&2
+        exit 1
+        ;;
+    esac
+
+    if [ "$failed" = 1 ]; then
+      ${pkgs.libnotify}/bin/notify-send -u critical "Claude Code sync" "Sync ($direction) failed - check the journal"
+    elif [ "$transferred" -gt 0 ]; then
+      ${pkgs.libnotify}/bin/notify-send "Claude Code sync" "Sync ($direction) done - $transferred file(s)"
+    fi
+  '';
+
 in
 {
   home.stateVersion = "26.05";
@@ -92,6 +184,7 @@ in
       bitwarden-desktop
       bitwarden-cli
       brave
+      claudeSync
       gimp
       gitflow
       jetbrains.goland
@@ -107,6 +200,7 @@ in
       phpstormUrlHandler
       pngquant
       postman
+      rclone
       signal-desktop
       spotify
       symfony-cli
@@ -325,6 +419,29 @@ in
         "*-*-* 14:30:00"
       ];
       Persistent = true;
+    };
+
+    Install.WantedBy = [ "timers.target" ];
+  };
+
+  systemd.user.services.claude-sync-push = {
+    Unit.Description = "Push Claude Code conversations/plans/CLAUDE.md to pCloud";
+
+    Service = {
+      Type = "oneshot";
+      ExecStart = "${claudeSync}/bin/claude-sync push";
+    };
+  };
+
+  # Claude Code's own SessionEnd hook already pushes on clean exit; this timer
+  # is the fallback for crashes/kill -9, where SessionEnd never fires -
+  # bounds how much unsynced work a crash can lose to ~20 minutes.
+  systemd.user.timers.claude-sync-push = {
+    Unit.Description = "Periodic Claude Code sync safety net";
+
+    Timer = {
+      OnStartupSec = "5m";
+      OnUnitActiveSec = "20m";
     };
 
     Install.WantedBy = [ "timers.target" ];

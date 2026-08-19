@@ -71,3 +71,12 @@ creation_rules:
           - *master_key
           - *host_home
           - *host_work
+
+  # rclone remote config (pCloud), shared verbatim across machines so
+  # claude-sync reads/writes the same remote from either one
+  - path_regex: secrets/rclone-pcloud\.conf$
+    key_groups:
+      - age:
+          - *master_key
+          - *host_home
+          - *host_work

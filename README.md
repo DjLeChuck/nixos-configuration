@@ -159,6 +159,79 @@ every switch:
 cd ~/.ssh/config.d && git pull
 ```
 
+#### Claude Code data sync (pCloud)
+
+`~/.claude/{projects,plans,CLAUDE.md}` (conversations, plans, per-project
+memory, global preferences) sync between `home` and `work` through a shared
+pCloud remote, via the `claude-sync` script (`common/home.nix`) wired to
+Claude Code's `SessionStart`/`SessionEnd` hooks plus a 20-minute
+`claude-sync-push` timer as a crash safety net. It's a plain `rclone copy
+--update` in each direction - additive only, never deletes - which is safe
+because the two machines are never used at the same time. A desktop
+notification (`libnotify`) fires whenever a sync actually transfers a file,
+and a critical one on a real failure (a missing remote path on a first-ever
+sync doesn't count as one) - a no-op sync stays silent.
+
+`~/.claude/projects/<slug>` is named from a literal transform of the
+project's absolute path, so a project living under `$HOME` (this
+`nixos-config` checkout, or any future one) gets a different slug on `home`
+(`djlechuck`) and `work` (`vdebona`) and would never merge. `claude-sync`
+re-homes any such project to a machine-independent slug (`-HOMESYNC...`) on
+push and back to the local slug on pull, so it merges the same way projects
+under the shared `/srv/development` path already do - no per-project
+configuration needed.
+
+The rclone remote config (`~/.config/rclone/rclone.conf`, holding the pCloud
+OAuth token) is deployed by `modules/rclone-pcloud.nix` from a single sops
+secret shared by both machines, so the OAuth flow only has to happen once,
+not per machine:
+
+```bash
+# 1) Anywhere with a browser: authorize once and capture the resulting
+#    rclone.conf ([pcloud] section, OAuth token included). If this machine
+#    hasn't switched with `rclone` in home.packages yet, run it ephemerally
+#    instead - it still writes to the default ~/.config/rclone/rclone.conf:
+#    nix run nixpkgs#rclone -- config
+rclone config
+# -> n) New remote -> name "pcloud" -> type "pcloud" -> follow the browser flow
+
+# 2) Encrypt that file's content into the repo
+sops secrets/rclone-pcloud.conf
+# -> paste the full rclone.conf content, save
+
+# 3) Roll out to each machine
+sudo nixos-rebuild switch --flake .#home
+sudo nixos-rebuild switch --flake .#work
+```
+
+As with the other sops-backed secrets above, the very first switch on a
+machine may run before the secret is decrypted - `claude-sync` will just fail
+silently (best-effort) until the next switch picks it up.
+
+Bootstrap the remote itself once, from whichever machine already has
+`~/.claude` data:
+
+```bash
+claude-sync push   # seed pCloud from this machine
+claude-sync pull   # on the other machine, once its rclone.conf is deployed
+```
+
+Finally, add the hooks to `~/.claude/settings.json` on each machine (not
+managed by Nix - Claude Code writes to that file itself):
+
+```json
+{
+  "hooks": {
+    "SessionStart": [
+      { "hooks": [{ "type": "command", "command": "claude-sync pull", "timeout": 30 }] }
+    ],
+    "SessionEnd": [
+      { "hooks": [{ "type": "command", "command": "claude-sync push", "timeout": 30 }] }
+    ]
+  }
+}
+```
+
 #### Update dependencies
 
 ```bash
