@@ -90,10 +90,22 @@ let
   # machines are never used at the same time - a plain additive merge.
   claudeSync = pkgs.writeShellScriptBin "claude-sync" ''
     if [ "''${FLOCKED:-}" != "1" ]; then
-      exec env FLOCKED=1 ${pkgs.util-linux}/bin/flock -n /tmp/claude-code-sync.lock "$0" "$@"
+      # Backgrounded (see the SessionStart/SessionEnd hooks in
+      # ~/.claude/settings.json) syncs can now overlap - e.g. switching
+      # project quickly enough that one session's detached push is still
+      # running when the next one's pull starts - so wait for the lock
+      # instead of dropping the sync silently on contention.
+      exec env FLOCKED=1 ${pkgs.util-linux}/bin/flock -w 60 /tmp/claude-code-sync.lock "$0" "$@"
     fi
 
     direction="''${1:-}"
+    # ~/.claude/settings.json interpolates ''${CLAUDE_PROJECT_DIR} into the
+    # hook command before running it (Claude Code hooks reference), so
+    # SessionStart/SessionEnd pass their project's directory as $2 here and
+    # only that one project gets synced - not every project on disk, which is
+    # what made each session start/stop take several seconds. Manual calls and
+    # the claude-sync-push timer below omit it and get a full sync.
+    target_dir="''${2:-}"
     remote="pcloud:claude-code-sync"
     local_dir="$HOME/.claude"
     opts=(--update --contimeout 5s --timeout 10s --retries 1 -v)
@@ -104,12 +116,28 @@ let
     # the project's absolute path (every non-alnum char becomes "-"). Two
     # machines with different usernames get a different slug for the same
     # $HOME-rooted project (this nixos-config checkout included) and would
-    # otherwise never merge. Swap the local $HOME prefix for a stable,
-    # machine-independent one before anything leaves this machine, and swap
-    # it back on the way in, so any $HOME-rooted project - present or future -
-    # merges the same way the /srv/development-rooted ones already do.
+    # otherwise never merge. Map the local $HOME prefix to a stable,
+    # machine-independent one on the remote side, and back on the way in, so
+    # any $HOME-rooted project - present or future - merges the same way the
+    # /srv/development-rooted ones already do.
     home_slug="$(printf '%s' "$HOME" | ${pkgs.gnused}/bin/sed -E 's/[^A-Za-z0-9]/-/g')"
     canonical_slug="-HOMESYNC"
+
+    raw_slug() { printf '%s' "$1" | ${pkgs.gnused}/bin/sed -E 's/[^A-Za-z0-9]/-/g'; }
+
+    remote_slug_for() {
+      case "$1" in
+        "$home_slug"-*) printf '%s' "$canonical_slug''${1#$home_slug}" ;;
+        *) printf '%s' "$1" ;;
+      esac
+    }
+
+    local_slug_for() {
+      case "$1" in
+        "$canonical_slug"*) printf '%s' "$home_slug''${1#$canonical_slug}" ;;
+        *) printf '%s' "$1" ;;
+      esac
+    }
 
     run_rclone() {
       local out rc
@@ -125,44 +153,53 @@ let
 
     sync_one() {
       case "$1:$direction" in
-        dir:pull) run_rclone copy "$remote/$2" "$local_dir/$2" "''${opts[@]}" --create-empty-src-dirs --exclude "/$canonical_slug*/**" ;;
-        dir:push) run_rclone copy "$local_dir/$2" "$remote/$2" "''${opts[@]}" --exclude "/$home_slug-*/**" ;;
+        dir:pull) run_rclone copy "$remote/$2" "$local_dir/$2" "''${opts[@]}" --create-empty-src-dirs ;;
+        dir:push) run_rclone copy "$local_dir/$2" "$remote/$2" "''${opts[@]}" ;;
         file:pull) run_rclone copyto "$remote/$2" "$local_dir/$2" "''${opts[@]}" ;;
         file:push) run_rclone copyto "$local_dir/$2" "$remote/$2" "''${opts[@]}" ;;
       esac
     }
 
-    # Re-homes $HOME-rooted project dirs to/from the canonical slug, one
-    # rclone invocation per project so source and destination basenames can
-    # differ - no local renaming involved, so a crash mid-sync can't corrupt
-    # a live project directory.
-    sync_home_projects() {
+    # One rclone call per project - never a bulk copy of the whole `projects`
+    # tree - so a hook scoped to $target_dir only pays for listing/comparing
+    # its own project instead of every project on disk.
+    sync_projects() {
       case "$direction" in
         push)
-          for d in "$local_dir"/projects/"$home_slug"-*/; do
-            [ -d "$d" ] || continue
-            name="$(${pkgs.coreutils}/bin/basename "$d")"
-            run_rclone copy "$d" "$remote/projects/$canonical_slug''${name#$home_slug}" "''${opts[@]}"
-          done
+          if [ -n "$target_dir" ]; then
+            slug="$(raw_slug "$target_dir")"
+            d="$local_dir/projects/$slug"
+            [ -d "$d" ] && run_rclone copy "$d" "$remote/projects/$(remote_slug_for "$slug")" "''${opts[@]}"
+          else
+            for d in "$local_dir"/projects/*/; do
+              [ -d "$d" ] || continue
+              slug="$(${pkgs.coreutils}/bin/basename "$d")"
+              run_rclone copy "$d" "$remote/projects/$(remote_slug_for "$slug")" "''${opts[@]}"
+            done
+          fi
           ;;
         pull)
-          while IFS= read -r canon; do
-            [ -n "$canon" ] || continue
-            run_rclone copy "$remote/projects/$canon" "$local_dir/projects/$home_slug''${canon#$canonical_slug}" "''${opts[@]}" --create-empty-src-dirs
-          done < <(${pkgs.rclone}/bin/rclone lsf "$remote/projects" --dirs-only 2>/dev/null | ${pkgs.gnugrep}/bin/grep "^$canonical_slug" | ${pkgs.gnused}/bin/sed 's:/$::')
+          if [ -n "$target_dir" ]; then
+            slug="$(raw_slug "$target_dir")"
+            run_rclone copy "$remote/projects/$(remote_slug_for "$slug")" "$local_dir/projects/$slug" "''${opts[@]}" --create-empty-src-dirs
+          else
+            while IFS= read -r remote_name; do
+              [ -n "$remote_name" ] || continue
+              run_rclone copy "$remote/projects/$remote_name" "$local_dir/projects/$(local_slug_for "$remote_name")" "''${opts[@]}" --create-empty-src-dirs
+            done < <(${pkgs.rclone}/bin/rclone lsf "$remote/projects" --dirs-only 2>/dev/null | ${pkgs.gnused}/bin/sed 's:/$::')
+          fi
           ;;
       esac
     }
 
     case "$direction" in
       pull|push)
-        sync_one dir projects
-        sync_home_projects
+        sync_projects
         sync_one dir plans
         sync_one file CLAUDE.md
         ;;
       *)
-        echo "usage: claude-sync {pull|push}" >&2
+        echo "usage: claude-sync {pull|push} [project-dir]" >&2
         exit 1
         ;;
     esac

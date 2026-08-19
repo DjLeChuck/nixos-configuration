@@ -217,20 +217,35 @@ claude-sync pull   # on the other machine, once its rclone.conf is deployed
 ```
 
 Finally, add the hooks to `~/.claude/settings.json` on each machine (not
-managed by Nix - Claude Code writes to that file itself):
+managed by Nix - Claude Code writes to that file itself). `${CLAUDE_PROJECT_DIR}`
+is interpolated by Claude Code into the command before it runs (see the
+[hooks reference](https://code.claude.com/docs/en/hooks.md)); passing it as
+the 2nd arg scopes the sync to that one project instead of every project
+under `~/.claude/projects` - confirmed empirically to be the exact directory
+`claude-sync` derives the project's slug from. A scoped sync still costs
+~2.3s (fixed per-`rclone`-invocation overhead - auth/TLS, not file count), so
+both hooks background it via `setsid ... &` instead of blocking session
+start/stop on it. `SessionStart`'s pull is safe to background outright - a
+session doesn't need its own history pulled before it can be used, and it
+self-corrects within a couple seconds. `SessionEnd`'s push relies on `setsid`
+actually detaching the process from the terminal session Claude Code is
+about to tear down - a bare trailing `&` alone wouldn't survive that:
 
 ```json
 {
   "hooks": {
     "SessionStart": [
-      { "hooks": [{ "type": "command", "command": "claude-sync pull", "timeout": 30 }] }
+      { "hooks": [{ "type": "command", "command": "setsid claude-sync pull \"${CLAUDE_PROJECT_DIR}\" < /dev/null > /dev/null 2>&1 &", "timeout": 30 }] }
     ],
     "SessionEnd": [
-      { "hooks": [{ "type": "command", "command": "claude-sync push", "timeout": 30 }] }
+      { "hooks": [{ "type": "command", "command": "setsid claude-sync push \"${CLAUDE_PROJECT_DIR}\" < /dev/null > /dev/null 2>&1 &", "timeout": 30 }] }
     ]
   }
 }
 ```
+
+Since the sync now runs detached, the desktop notification (see above) is
+the only signal that it happened at all - there's nothing left to wait on.
 
 #### Update dependencies
 
