@@ -204,10 +204,16 @@ let
         ;;
     esac
 
+    if [ -n "$target_dir" ]; then
+      label="$(${pkgs.coreutils}/bin/basename "$target_dir")"
+    else
+      label="all projects"
+    fi
+
     if [ "$failed" = 1 ]; then
-      ${pkgs.libnotify}/bin/notify-send -u critical "Claude Code sync" "Sync ($direction) failed - check the journal"
+      ${pkgs.libnotify}/bin/notify-send -u critical "Claude Code sync" "Sync ($direction, $label) failed - check the journal"
     elif [ "$transferred" -gt 0 ]; then
-      ${pkgs.libnotify}/bin/notify-send "Claude Code sync" "Sync ($direction) done - $transferred file(s)"
+      ${pkgs.libnotify}/bin/notify-send "Claude Code sync" "Sync ($direction, $label) done - $transferred file(s)"
     fi
   '';
 
