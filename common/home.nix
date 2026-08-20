@@ -232,11 +232,13 @@ in
       bitwarden-cli
       brave
       claudeSync
+      gawk
       gimp
       gitflow
       jetbrains.goland
       jetbrains.phpstorm
       jpegoptim
+      jq
       k6
       libreoffice
       libwebp
