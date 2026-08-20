@@ -108,8 +108,7 @@ let
     target_dir="''${2:-}"
     remote="pcloud:claude-code-sync"
     local_dir="$HOME/.claude"
-    opts=(--update --contimeout 5s --timeout 10s --retries 1 -v)
-    transferred=0
+    opts=(--update --contimeout 5s --timeout 10s --retries 1 -q)
     failed=0
 
     # Claude Code keys ~/.claude/projects/<slug> off a literal transform of
@@ -152,7 +151,6 @@ let
         # notify-send's "check the journal" would point at an empty journal.
         printf 'rclone %s (exit %s):\n%s\n' "$*" "$rc" "$out" | ${pkgs.util-linux}/bin/logger -t claude-sync -p user.err
       fi
-      transferred=$((transferred + $(printf '%s\n' "$out" | ${pkgs.gnugrep}/bin/grep -c ': Copied (')))
     }
 
     sync_one() {
@@ -209,16 +207,13 @@ let
         ;;
     esac
 
-    if [ -n "$target_dir" ]; then
-      label="$(${pkgs.coreutils}/bin/basename "$target_dir")"
-    else
-      label="all projects"
-    fi
-
     if [ "$failed" = 1 ]; then
+      if [ -n "$target_dir" ]; then
+        label="$(${pkgs.coreutils}/bin/basename "$target_dir")"
+      else
+        label="all projects"
+      fi
       ${pkgs.libnotify}/bin/notify-send -u critical "Claude Code sync" "Sync ($direction, $label) failed - journalctl -t claude-sync"
-    elif [ "$transferred" -gt 0 ]; then
-      ${pkgs.libnotify}/bin/notify-send "Claude Code sync" "Sync ($direction, $label) done - $transferred file(s)"
     fi
   '';
 

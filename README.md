@@ -164,14 +164,13 @@ cd ~/.ssh/config.d && git pull
 `~/.claude/{projects,plans,CLAUDE.md,statusline.py}` (conversations, plans,
 per-project memory, global preferences, status line script) sync between
 `home` and `work` through a shared pCloud remote, via the `claude-sync`
-script (`common/home.nix`) wired to
-Claude Code's `SessionStart`/`SessionEnd` hooks plus a 20-minute
-`claude-sync-push` timer as a crash safety net. It's a plain `rclone copy
---update` in each direction - additive only, never deletes - which is safe
-because the two machines are never used at the same time. A desktop
-notification (`libnotify`) fires whenever a sync actually transfers a file,
-and a critical one on a real failure (a missing remote path on a first-ever
-sync doesn't count as one) - a no-op sync stays silent.
+script (`common/home.nix`) wired to Claude Code's `SessionStart`/`SessionEnd`
+hooks plus a 20-minute `claude-sync-push` timer as a crash safety net. It's a
+plain `rclone copy --update` in each direction - additive only, never
+deletes - which is safe because the two machines are never used at the same
+time. A desktop notification (`libnotify`) fires only on a real failure (a
+missing remote path on a first-ever sync doesn't count as one) - success is
+silent by design, the failure is what's worth interrupting for.
 
 `~/.claude/projects/<slug>` is named from a literal transform of the
 project's absolute path, so a project living under `$HOME` (this
@@ -245,8 +244,9 @@ about to tear down - a bare trailing `&` alone wouldn't survive that:
 }
 ```
 
-Since the sync now runs detached, the desktop notification (see above) is
-the only signal that it happened at all - there's nothing left to wait on.
+Since the sync now runs detached, there's nothing left to wait on - silence
+means it went fine, and the critical desktop notification (see above) is the
+only signal something didn't.
 
 #### Update dependencies
 
