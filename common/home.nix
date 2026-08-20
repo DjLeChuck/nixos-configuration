@@ -82,12 +82,12 @@ let
     exit 0
   '';
 
-  # Pushes/pulls ~/.claude/{projects,plans,CLAUDE.md} to the shared pCloud
-  # remote configured by modules/rclone-pcloud.nix. Wired to Claude Code's
-  # SessionStart/SessionEnd hooks (see ~/.claude/settings.json on each
-  # machine) plus the claude-sync-push timer below as a crash safety net.
-  # `--update` only overwrites older files and never deletes, since the two
-  # machines are never used at the same time - a plain additive merge.
+  # Pushes/pulls ~/.claude/{projects,plans,CLAUDE.md,statusline.py} to the
+  # shared pCloud remote configured by modules/rclone-pcloud.nix. Wired to
+  # Claude Code's SessionStart/SessionEnd hooks (see ~/.claude/settings.json
+  # on each machine) plus the claude-sync-push timer below as a crash safety
+  # net. `--update` only overwrites older files and never deletes, since the
+  # two machines are never used at the same time - a plain additive merge.
   claudeSync = pkgs.writeShellScriptBin "claude-sync" ''
     if [ "''${FLOCKED:-}" != "1" ]; then
       # Backgrounded (see the SessionStart/SessionEnd hooks in
@@ -201,6 +201,7 @@ let
         sync_projects
         sync_one dir plans
         sync_one file CLAUDE.md
+        sync_one file statusline.py
         ;;
       *)
         echo "usage: claude-sync {pull|push} [project-dir]" >&2
