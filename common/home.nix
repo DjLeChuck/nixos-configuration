@@ -147,6 +147,10 @@ let
       # the remote has anything yet, not a real failure.
       if [ "$rc" != 0 ] && [ "$rc" != 3 ] && [ "$rc" != 4 ]; then
         failed=1
+        # Detached hook runs discard stdout/stderr (see settings.json), so this
+        # is the only place a real failure's detail survives - without it,
+        # notify-send's "check the journal" would point at an empty journal.
+        printf 'rclone %s (exit %s):\n%s\n' "$*" "$rc" "$out" | ${pkgs.util-linux}/bin/logger -t claude-sync -p user.err
       fi
       transferred=$((transferred + $(printf '%s\n' "$out" | ${pkgs.gnugrep}/bin/grep -c ': Copied (')))
     }
@@ -211,7 +215,7 @@ let
     fi
 
     if [ "$failed" = 1 ]; then
-      ${pkgs.libnotify}/bin/notify-send -u critical "Claude Code sync" "Sync ($direction, $label) failed - check the journal"
+      ${pkgs.libnotify}/bin/notify-send -u critical "Claude Code sync" "Sync ($direction, $label) failed - journalctl -t claude-sync"
     elif [ "$transferred" -gt 0 ]; then
       ${pkgs.libnotify}/bin/notify-send "Claude Code sync" "Sync ($direction, $label) done - $transferred file(s)"
     fi
