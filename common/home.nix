@@ -480,13 +480,13 @@ in
 
   # Claude Code's own SessionEnd hook already pushes on clean exit; this timer
   # is the fallback for crashes/kill -9, where SessionEnd never fires -
-  # bounds how much unsynced work a crash can lose to ~20 minutes.
+  # bounds how much unsynced work a crash can lose to ~3h.
   systemd.user.timers.claude-sync-push = {
     Unit.Description = "Periodic Claude Code sync safety net";
 
     Timer = {
       OnStartupSec = "5m";
-      OnUnitActiveSec = "20m";
+      OnUnitActiveSec = "3h";
     };
 
     Install.WantedBy = [ "timers.target" ];
