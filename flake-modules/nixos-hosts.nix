@@ -3,6 +3,7 @@
 let
   inherit (inputs)
     nixpkgs
+    nixpkgs-unstable
     home-manager
     sops-nix
     foundryvtt
@@ -24,7 +25,14 @@ let
     }:
     nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
-      specialArgs = { inherit self claude-code toggl-redmine; };
+      specialArgs = {
+        inherit
+          self
+          claude-code
+          toggl-redmine
+          nixpkgs-unstable
+          ;
+      };
       # Machine-specific modules are merged before the common home-manager
       # wiring below, same as the pre-flake-parts module order, so a host's
       # own home-manager.users.<user> block (e.g. gaming packages) is merged

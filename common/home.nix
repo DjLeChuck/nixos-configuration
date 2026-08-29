@@ -248,7 +248,7 @@ in
       rclone
       signal-desktop
       spotify
-      symfony-cli
+      unstable.symfony-cli
       toggl-redmine.packages.${pkgs.stdenv.hostPlatform.system}.default
       direnv-ide-shim.packages.${pkgs.stdenv.hostPlatform.system}.default
       tree
@@ -398,8 +398,8 @@ in
     Service = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStart = "${pkgs.symfony-cli}/bin/symfony proxy:start";
-      ExecStop = "${pkgs.symfony-cli}/bin/symfony proxy:stop";
+      ExecStart = "${pkgs.unstable.symfony-cli}/bin/symfony proxy:start";
+      ExecStop = "${pkgs.unstable.symfony-cli}/bin/symfony proxy:stop";
     };
 
     Install.WantedBy = [ "default.target" ];

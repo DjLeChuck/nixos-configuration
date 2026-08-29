@@ -3,6 +3,7 @@
   lib,
   pkgs,
   self,
+  nixpkgs-unstable,
   ...
 }:
 
@@ -30,7 +31,7 @@ in
   ];
 
   nixpkgs.overlays = [
-    (import ../overlays/symfony-cli-php-reload-fix.nix)
+    (import ../overlays/unstable-packages.nix { inherit nixpkgs-unstable; })
   ];
 
   # Lets generically-linked prebuilt Linux binaries run on NixOS (e.g. the
