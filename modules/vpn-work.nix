@@ -25,12 +25,40 @@ let
 
   suspendDisconnectScript = pkgs.writeShellScript "openvpn3-suspend-disconnect" ''
     set -u
+
+    # This service runs as root, but OpenVPN3 sessions are only visible to
+    # and manageable by the UID that started them (root has no implicit
+    # access, unlike config-acl's --public-access) — confirmed by journal
+    # logs showing "No sessions available" as root while a session was
+    # actually active. So the actual openvpn3 calls must run as the desktop
+    # user that owns the session, resolved dynamically since this module is
+    # shared between machines with different usernames.
+    #
+    # seat0's ActiveSession is unreliable right at the suspend/resume
+    # transition (observed empty in the journal at both points, causing this
+    # to silently skip every time), so use the logged-in user list instead,
+    # which doesn't depend on VT/seat focus.
+    target_user=""
+    while read -r uid user _; do
+      if [ "$uid" != "0" ] && [ -n "$user" ]; then
+        target_user="$user"
+        break
+      fi
+    done < <(${pkgs.systemd}/bin/loginctl list-users --no-legend 2>/dev/null)
+    if [ -z "$target_user" ]; then
+      echo "openvpn3-suspend-disconnect: could not resolve a logged-in desktop user, skipping" >&2
+      exit 0
+    fi
+
+    run_as_user() {
+      ${pkgs.util-linux}/bin/runuser -u "$target_user" -- ${pkgs.openvpn3}/bin/openvpn3 "$@"
+    }
+
     # Same parsing approach as gnome-extensions/openvpn3-switcher/extension.js:
     # sessions-list has no --json output; blocks are dashed-line separated,
     # each with a "Config name:" line if a session is active for it.
     session_names() {
-      ${pkgs.openvpn3}/bin/openvpn3 sessions-list 2>/dev/null \
-        | ${pkgs.gnugrep}/bin/grep -oP '^\s*Config name:\s*\K.+'
+      run_as_user sessions-list 2>/dev/null | ${pkgs.gnugrep}/bin/grep -oP '^\s*Config name:\s*\K.+'
     }
 
     # `session-manage --disconnect` acks the request without waiting for the
@@ -44,7 +72,8 @@ let
       [ -z "$names" ] && exit 0
       while IFS= read -r name; do
         [ -n "$name" ] || continue
-        ${pkgs.openvpn3}/bin/openvpn3 session-manage --config "$name" --disconnect || true
+        echo "openvpn3-suspend-disconnect: disconnecting '$name' as $target_user (attempt $((attempt + 1)))" >&2
+        run_as_user session-manage --config "$name" --disconnect || true
       done <<< "$names"
       sleep 3
       attempt=$((attempt + 1))
