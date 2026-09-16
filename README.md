@@ -161,8 +161,9 @@ cd ~/.ssh/config.d && git pull
 
 #### Claude Code data sync (pCloud)
 
-`~/.claude/{projects,plans,CLAUDE.md,statusline.py}` (conversations, plans,
-per-project memory, global preferences, status line script) sync between
+`~/.claude/{projects,plans,skills,CLAUDE.md,statusline.py}` (conversations,
+plans, custom skills, per-project memory, global preferences, status line
+script) sync between
 `home` and `work` through a shared pCloud remote, via the `claude-sync`
 script (`common/home.nix`) wired to Claude Code's `SessionStart`/`SessionEnd`
 hooks plus a 20-minute `claude-sync-push` timer as a crash safety net. It's a

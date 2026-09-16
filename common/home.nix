@@ -82,8 +82,8 @@ let
     exit 0
   '';
 
-  # Pushes/pulls ~/.claude/{projects,plans,CLAUDE.md,statusline.py} to the
-  # shared pCloud remote configured by modules/rclone-pcloud.nix. Wired to
+  # Pushes/pulls ~/.claude/{projects,plans,skills,CLAUDE.md,statusline.py} to
+  # the shared pCloud remote configured by modules/rclone-pcloud.nix. Wired to
   # Claude Code's SessionStart/SessionEnd hooks (see ~/.claude/settings.json
   # on each machine) plus the claude-sync-push timer below as a crash safety
   # net. `--update` only overwrites older files and never deletes, since the
@@ -198,6 +198,7 @@ let
       pull|push)
         sync_projects
         sync_one dir plans
+        sync_one dir skills
         sync_one file CLAUDE.md
         sync_one file statusline.py
         ;;
