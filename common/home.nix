@@ -239,7 +239,6 @@ in
       k6
       libreoffice
       libwebp
-      mattermost-desktop
       meld
       nixd
       nixfmt
@@ -249,6 +248,7 @@ in
       rclone
       signal-desktop
       spotify
+      unstable.mattermost-desktop
       unstable.symfony-cli
       toggl-redmine.packages.${pkgs.stdenv.hostPlatform.system}.default
       direnv-ide-shim.packages.${pkgs.stdenv.hostPlatform.system}.default
@@ -302,7 +302,7 @@ in
     [Desktop Entry]
     Name=Mattermost
     Comment=Mattermost Desktop application for Linux
-    Exec="${pkgs.mattermost-desktop}/bin/mattermost-desktop" %U
+    Exec="${pkgs.unstable.mattermost-desktop}/bin/mattermost-desktop" %U
     Terminal=false
     Type=Application
     MimeType=x-scheme-handler/mattermost
