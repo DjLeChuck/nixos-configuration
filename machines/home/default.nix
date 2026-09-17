@@ -114,12 +114,16 @@
       home.packages = with pkgs; [
         pkgs.claude-code
         gamescope
+        goverlay
         lutris
         mumble
         solaar
         wineWow64Packages.stable
         winetricks
       ];
+
+      # goverlay (GUI above) reads/writes this same MangoHud.conf.
+      programs.mangohud.enable = true;
 
       services.nextcloud-client = {
         enable = true;
