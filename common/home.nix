@@ -4,6 +4,7 @@
   osConfig,
   toggl-redmine,
   direnv-ide-shim,
+  llm-agents,
   self,
   ...
 }:
@@ -252,6 +253,8 @@ in
       unstable.symfony-cli
       toggl-redmine.packages.${pkgs.stdenv.hostPlatform.system}.default
       direnv-ide-shim.packages.${pkgs.stdenv.hostPlatform.system}.default
+      llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-code
+      llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-desktop
       tree
       trivy
       vlc
@@ -409,7 +412,7 @@ in
   # Nix flakes have no per-package update notifications like apt/GNOME
   # Software: every installed program comes from whichever nixpkgs commit is
   # pinned in flake.lock, so "updates" only exist relative to that pin (and
-  # the other flake inputs: home-manager, sops-nix, foundryvtt, claude-code).
+  # the other flake inputs: home-manager, sops-nix, foundryvtt, llm-agents).
   # This periodically compares each input's locked rev to its remote branch
   # HEAD and nudges via a desktop notification when any have diverged.
   systemd.user.services.nixpkgs-update-check = {

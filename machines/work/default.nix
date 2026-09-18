@@ -1,7 +1,6 @@
 {
   config,
   pkgs,
-  claude-code,
   ...
 }:
 
@@ -43,8 +42,6 @@
   # (a verbose release+revision string by default) - shorten it instead.
   system.nixos.label = "work";
   boot.loader.systemd-boot.configurationLimit = 10;
-
-  nixpkgs.overlays = [ claude-code.overlays.default ];
 
   hardware.tuxedo-rs = {
     enable = true;
@@ -115,12 +112,8 @@
   services.foundryvtt-gnome-extension.enable = true;
 
   home-manager.users.vdebona =
-    { pkgs, ... }:
+    { ... }:
     {
-      home.packages = with pkgs; [
-        pkgs.claude-code
-      ];
-
       dconf.settings."org/gnome/desktop/peripherals/touchpad".natural-scroll = false;
 
       # networking.hostName ("LIN-2025-1") doesn't match this flake's

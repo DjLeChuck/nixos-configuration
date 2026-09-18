@@ -7,7 +7,7 @@ let
     home-manager
     sops-nix
     foundryvtt
-    claude-code
+    llm-agents
     toggl-redmine
     direnv-ide-shim
     ;
@@ -28,7 +28,6 @@ let
       specialArgs = {
         inherit
           self
-          claude-code
           toggl-redmine
           nixpkgs-unstable
           ;
@@ -55,7 +54,14 @@ let
         home-manager.useGlobalPkgs = true;
         home-manager.useUserPackages = true;
         home-manager.backupFileExtension = "bck";
-        home-manager.extraSpecialArgs = { inherit toggl-redmine direnv-ide-shim self; };
+        home-manager.extraSpecialArgs = {
+          inherit
+            toggl-redmine
+            direnv-ide-shim
+            llm-agents
+            self
+            ;
+        };
         home-manager.users.${homeUser} = import ../common/home.nix;
       };
     };

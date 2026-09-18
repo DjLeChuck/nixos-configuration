@@ -2,7 +2,6 @@
   config,
   lib,
   pkgs,
-  claude-code,
   ...
 }:
 
@@ -40,8 +39,6 @@
       "x-systemd.requires-mounts-for=/mnt/lechuck"
     ];
   };
-
-  nixpkgs.overlays = [ claude-code.overlays.default ];
 
   services.foundryvtt-instances = {
     v11.port = 30011;
@@ -112,7 +109,6 @@
     { pkgs, ... }:
     {
       home.packages = with pkgs; [
-        pkgs.claude-code
         gamescope
         goverlay
         lutris
