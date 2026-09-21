@@ -507,7 +507,10 @@ in
   programs.zed-editor = {
     enable = true;
     extensions = [ "nix" ];
-    extraPackages = [ pkgs.nixd ];
+    extraPackages = [
+      pkgs.nixd
+      pkgs.nixfmt
+    ];
 
     userSettings = {
       cli_default_open_behavior = "new_window";
@@ -526,6 +529,13 @@ in
         "nixd"
         "!nil"
       ];
+      languages.Nix.format_on_save = "on";
+      languages.Nix.formatter = {
+        external = {
+          command = "${pkgs.nixfmt}/bin/nixfmt";
+          arguments = [ ];
+        };
+      };
       lsp.nixd.binary.path = "${pkgs.nixd}/bin/nixd";
     };
   };
