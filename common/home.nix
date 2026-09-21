@@ -538,6 +538,18 @@ in
       };
       lsp.nixd.binary.path = "${pkgs.nixd}/bin/nixd";
     };
+
+    # Swap the default "editor: format" (ctrl-shift-i) and "editor: select all
+    # matches" (ctrl-shift-l) bindings.
+    userKeymaps = [
+      {
+        context = "Editor";
+        bindings = {
+          "ctrl-shift-l" = "editor::Format";
+          "ctrl-shift-i" = "editor::SelectAllMatches";
+        };
+      }
+    ];
   };
 
   programs.git = {
