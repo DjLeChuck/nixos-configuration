@@ -14,6 +14,14 @@ let
   gnomeExtensionNames = import ./gnome-extension-names.nix;
   privateToolsEnabled = variables.privateTools.enable;
 
+  # llm-agents.nix's claude-desktop package (an FHS-wrapped Electron binary)
+  # exposes only bin/ from its own $out - no .desktop file, no icon - so
+  # without the entry and icons below GNOME can't display anything but a
+  # generic icon for it. Its `.unwrapped` passthru (the pre-FHS-wrap package,
+  # already part of the wrapped derivation's closure) does ship them.
+  claudeDesktopUnwrapped =
+    llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-desktop.unwrapped;
+
   gitGlobalIgnores = [
     ".idea/"
     ".intellijPlatform/"
@@ -313,6 +321,37 @@ in
     Categories=Network;InstantMessaging;
     StartupWMClass=Mattermost.Desktop
   '';
+
+  # See the claudeDesktopUnwrapped comment above (let block): the
+  # claude-desktop package ships neither a .desktop file nor icons of its
+  # own, so both are recreated by hand here, matching the upstream ones
+  # (share/applications/claude-desktop.desktop inside the FHS rootfs).
+  xdg.dataFile."applications/claude-desktop.desktop".text = ''
+    [Desktop Entry]
+    Name=Claude
+    GenericName=AI Assistant
+    Comment=Desktop application for Claude.ai
+    Exec="${
+      llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-desktop
+    }/bin/claude-desktop" %U
+    Terminal=false
+    Type=Application
+    MimeType=x-scheme-handler/claude
+    Icon=claude-desktop
+    Categories=Utility;Development;
+    StartupNotify=true
+    StartupWMClass=claude-desktop
+  '';
+  xdg.dataFile."icons/hicolor/16x16/apps/claude-desktop.png".source =
+    "${claudeDesktopUnwrapped}/share/icons/hicolor/16x16/apps/claude-desktop.png";
+  xdg.dataFile."icons/hicolor/32x32/apps/claude-desktop.png".source =
+    "${claudeDesktopUnwrapped}/share/icons/hicolor/32x32/apps/claude-desktop.png";
+  xdg.dataFile."icons/hicolor/48x48/apps/claude-desktop.png".source =
+    "${claudeDesktopUnwrapped}/share/icons/hicolor/48x48/apps/claude-desktop.png";
+  xdg.dataFile."icons/hicolor/128x128/apps/claude-desktop.png".source =
+    "${claudeDesktopUnwrapped}/share/icons/hicolor/128x128/apps/claude-desktop.png";
+  xdg.dataFile."icons/hicolor/256x256/apps/claude-desktop.png".source =
+    "${claudeDesktopUnwrapped}/share/icons/hicolor/256x256/apps/claude-desktop.png";
 
   xdg.mimeApps = {
     enable = true;
