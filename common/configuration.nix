@@ -56,12 +56,12 @@ in
     }/bin/excel2jsonl";
   };
 
-  # Automatic weekly GC instead of manually deciding when it's worth it -
-  # keeps 15 days of rollback-able generations, purges everything older.
+  # Automatic daily GC instead of manually deciding when it's worth it -
+  # keeps 7 days of rollback-able generations, purges everything older.
   nix.gc = {
     automatic = true;
-    dates = "weekly";
-    options = "--delete-older-than 15d";
+    dates = "daily";
+    options = "--delete-older-than 7d";
   };
 
   sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
