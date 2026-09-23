@@ -64,6 +64,10 @@ in
     options = "--delete-older-than 7d";
   };
 
+  # Hardlinks identical files across store paths to reclaim space, since
+  # many derivations (toolchains, glibc, etc.) overlap heavily.
+  nix.optimise.automatic = true;
+
   sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
 
   networking.networkmanager.enable = true;
