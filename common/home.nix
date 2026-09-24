@@ -22,6 +22,19 @@ let
   claudeDesktopUnwrapped =
     llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-desktop.unwrapped;
 
+  # symfony-cli unconditionally prints "PHP version selection is overridden by
+  # SYMFONY_CLI_PHP_BINARY_PATH" (no upstream flag to silence it) whenever that
+  # var is set - which our php-dev-shell devShells always do on purpose. This
+  # wraps the real, single systemd-proxy-owning binary (never a second copy)
+  # so it keeps working identically from an interactive fish session AND from
+  # a non-interactive `sh -c` subshell (e.g. Makefile recipes), which a fish
+  # function alone can't reach.
+  symfonyCliQuiet = pkgs.writeShellScriptBin "symfony" ''
+    exec ${pkgs.unstable.symfony-cli}/bin/symfony "$@" 3>&2 2>&1 1>&3 3>&- \
+      | grep --line-buffered -v 'PHP version selection is overridden by SYMFONY_CLI_PHP_BINARY_PATH' 1>&2
+    exit "''${PIPESTATUS[0]}"
+  '';
+
   gitGlobalIgnores = [
     ".idea/"
     ".intellijPlatform/"
@@ -257,8 +270,8 @@ in
       rclone
       signal-desktop
       spotify
+      symfonyCliQuiet
       unstable.mattermost-desktop
-      unstable.symfony-cli
       toggl-redmine.packages.${pkgs.stdenv.hostPlatform.system}.default
       direnv-ide-shim.packages.${pkgs.stdenv.hostPlatform.system}.default
       llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-code
