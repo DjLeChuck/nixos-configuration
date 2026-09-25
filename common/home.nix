@@ -220,6 +220,7 @@ let
       pull|push)
         sync_projects
         sync_one dir plans
+        sync_one dir memory
         sync_one dir skills
         sync_one file CLAUDE.md
         sync_one file statusline.py
