@@ -876,6 +876,11 @@ in
   home.sessionVariables = {
     EDITOR = "vim";
     VISUAL = "vim";
+    # Chromium/Brave's sandbox often fails to resolve NixOS's /etc/localtime
+    # symlink (it points into /nix/store, outside the sandbox's allowed
+    # zoneinfo paths) and silently falls back to UTC. Setting TZ explicitly
+    # bypasses that lookup.
+    TZ = "Europe/Paris";
     SSH_AUTH_SOCK = "${config.home.homeDirectory}/.bitwarden-ssh-agent.sock";
     # claude-code's nix wrapper hardcodes DISABLE_AUTOUPDATER=1, which also
     # silently disables plugin auto-updates; this re-enables just those.
