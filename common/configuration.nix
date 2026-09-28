@@ -175,6 +175,7 @@ in
 
     extensions = [
       "miefikpgahefdbcgoiicnmpbeeomffld" # Blackfire
+      "fcoeoabgfenejglbffodgkkbkcdhcgfn" # Claude
       "hmeobnfnfcmdkdcmlblgagmfpfboieaf" # Ctrl Wallet
       "nngceckbapebfimnlniiiahkandclblb" # Bitwarden
       "mdemppnhjflbejfbnlddahjbpdbeejnn" # Tamper Dev
