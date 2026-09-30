@@ -152,6 +152,16 @@
 
       programs.discord.enable = true;
 
+      # This machine's system user is "djlechuck", unlike the "work" machine
+      # where it's "vdebona". The ~/.ssh/config.d hosts (cloned from a shared
+      # private repo, identical on both machines) mostly omit an explicit
+      # User, relying on the system user matching the remote account
+      # ("vdebona") - true on "work" but not here. Only fills the gap: any
+      # host in config.d that already sets its own User keeps it, since
+      # Include is read before this wildcard block.
+      programs.ssh.settings."Match exec \"grep -qFx 'Host %n' ~/.ssh/config.d/*.conf\"".user =
+        "vdebona";
+
       # networking.hostName ("djlechuck-linux") doesn't match this flake's
       # nixosConfigurations attribute name ("home"), so `nh os` can't infer
       # it automatically — pin it explicitly.
