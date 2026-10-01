@@ -174,10 +174,10 @@ in
     enable = true;
 
     extensions = [
+      "nngceckbapebfimnlniiiahkandclblb" # Bitwarden
       "miefikpgahefdbcgoiicnmpbeeomffld" # Blackfire
       "fcoeoabgfenejglbffodgkkbkcdhcgfn" # Claude
-      "hmeobnfnfcmdkdcmlblgagmfpfboieaf" # Ctrl Wallet
-      "nngceckbapebfimnlniiiahkandclblb" # Bitwarden
+      "nkbihfbeogaeaoehlefnkodbefgpgknn" # MetaMask
       "mdemppnhjflbejfbnlddahjbpdbeejnn" # Tamper Dev
       "oejgccbfbmkkpaidnkphaiaecficdnfn" # Toggle Track
       "eadndfjplgieldjbigjakmdgkmoaaaoc" # Xdebug Helper
