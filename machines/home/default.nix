@@ -156,11 +156,18 @@
       # where it's "vdebona". The ~/.ssh/config.d hosts (cloned from a shared
       # private repo, identical on both machines) mostly omit an explicit
       # User, relying on the system user matching the remote account
-      # ("vdebona") - true on "work" but not here. Only fills the gap: any
-      # host in config.d that already sets its own User keeps it, since
-      # Include is read before this wildcard block.
-      programs.ssh.settings."Match exec \"grep -qFx 'Host %n' ~/.ssh/config.d/*.conf\"".user =
-        "vdebona";
+      # ("vdebona") - true on "work" but not here.
+      #
+      # Scoped to config.d only (not a blanket `Host *`): applies when the
+      # typed name (%n) matches a config.d "Host" alias OR a "HostName" it
+      # points to - the latter covers connecting by the real FQDN instead of
+      # the alias (e.g. `ssh vm-umanit.uman-it.fr` instead of
+      # `infra_vm-umanit`), which is otherwise invisible to this check.
+      # [[:space:]]* tolerates these files' indented HostName/User lines.
+      # Any host that already sets its own User keeps it, since Include is
+      # read before this Match block.
+      programs.ssh.settings."Match exec \"grep -qE '^[[:space:]]*Host(Name)?[[:space:]]+%n[[:space:]]*\$' ~/.ssh/config.d/*.conf\""
+        .user = "vdebona";
 
       # networking.hostName ("djlechuck-linux") doesn't match this flake's
       # nixosConfigurations attribute name ("home"), so `nh os` can't infer
