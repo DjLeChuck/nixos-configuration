@@ -72,9 +72,9 @@ creation_rules:
           - *host_home
           - *host_work
 
-  # rclone remote config (pCloud), shared verbatim across machines so
-  # claude-sync reads/writes the same remote from either one
-  - path_regex: secrets/rclone-pcloud\.conf$
+  # pCloud account password used for claude-sync's rsync-over-SSH transfers,
+  # shared verbatim across machines so both authenticate the same way
+  - path_regex: secrets/pcloud-rsync-password$
     key_groups:
       - age:
           - *master_key

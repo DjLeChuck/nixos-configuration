@@ -105,11 +105,13 @@ let
   '';
 
   # Pushes/pulls ~/.claude/{projects,plans,skills,CLAUDE.md,statusline.py} to
-  # the shared pCloud remote configured by modules/rclone-pcloud.nix. Wired to
-  # Claude Code's SessionStart/SessionEnd hooks (see ~/.claude/settings.json
-  # on each machine) plus the claude-sync-push timer below as a crash safety
-  # net. `--update` only overwrites older files and never deletes, since the
-  # two machines are never used at the same time - a plain additive merge.
+  # the pCloud account's official rsync-over-SSH gateway (see
+  # help.pcloud.com "Connect to pCloud using WebDAV and rsync"), authenticated
+  # via the password deployed by modules/pcloud-rsync.nix. Wired to Claude
+  # Code's SessionStart/SessionEnd hooks (see ~/.claude/settings.json on each
+  # machine) plus the claude-sync-push timer below as a crash safety net.
+  # `-u` only overwrites older files and never deletes, since the two machines
+  # are never used at the same time - a plain additive merge.
   claudeSync = pkgs.writeShellScriptBin "claude-sync" ''
     if [ "''${FLOCKED:-}" != "1" ]; then
       # Backgrounded (see the SessionStart/SessionEnd hooks in
@@ -128,9 +130,13 @@ let
     # what made each session start/stop take several seconds. Manual calls and
     # the claude-sync-push timer below omit it and get a full sync.
     target_dir="''${2:-}"
-    remote="pcloud:claude-code-sync"
+    # "pcloud-rsync" resolves HostName/User via programs.ssh.settings above;
+    # the leading slash matches pCloud's own rsync examples (path rooted at
+    # the account, not relative to a login shell home that doesn't exist here).
+    remote="pcloud-rsync:/claude-code-sync"
     local_dir="$HOME/.claude"
-    opts=(--update --contimeout 5s --timeout 10s --retries 1 -q)
+    password_file="$HOME/.config/pcloud-rsync-password"
+    rsync_ssh="${pkgs.sshpass}/bin/sshpass -f $password_file ${pkgs.openssh}/bin/ssh"
     failed=0
 
     # Claude Code keys ~/.claude/projects/<slug> off a literal transform of
@@ -160,31 +166,36 @@ let
       esac
     }
 
-    run_rclone() {
+    run_rsync() {
       local out rc
-      out="$(${pkgs.rclone}/bin/rclone "$@" 2>&1)"
+      out="$(${pkgs.rsync}/bin/rsync -e "$rsync_ssh" -au "$@" 2>&1)"
       rc=$?
-      # 3/4 = directory/file not found: expected on a first-ever sync before
-      # the remote has anything yet, not a real failure.
-      if [ "$rc" != 0 ] && [ "$rc" != 3 ] && [ "$rc" != 4 ]; then
+      if [ "$rc" != 0 ]; then
         failed=1
         # Detached hook runs discard stdout/stderr (see settings.json), so this
         # is the only place a real failure's detail survives - without it,
         # notify-send's "check the journal" would point at an empty journal.
-        printf 'rclone %s (exit %s):\n%s\n' "$*" "$rc" "$out" | ${pkgs.util-linux}/bin/logger -t claude-sync -p user.err
+        printf 'rsync %s (exit %s):\n%s\n' "$*" "$rc" "$out" | ${pkgs.util-linux}/bin/logger -t claude-sync -p user.err
       fi
+    }
+
+    # Unlike rclone, a plain rsync pull against a path that doesn't exist yet
+    # remotely (first-ever sync, before any push happened) is a hard error -
+    # check first so that expected case doesn't get logged/notified as one.
+    pull_exists() {
+      ${pkgs.rsync}/bin/rsync -e "$rsync_ssh" --list-only "$1" >/dev/null 2>&1
     }
 
     sync_one() {
       case "$1:$direction" in
-        dir:pull) run_rclone copy "$remote/$2" "$local_dir/$2" "''${opts[@]}" --create-empty-src-dirs ;;
-        dir:push) run_rclone copy "$local_dir/$2" "$remote/$2" "''${opts[@]}" ;;
-        file:pull) run_rclone copyto "$remote/$2" "$local_dir/$2" "''${opts[@]}" ;;
-        file:push) run_rclone copyto "$local_dir/$2" "$remote/$2" "''${opts[@]}" ;;
+        dir:pull) pull_exists "$remote/$2/" && run_rsync "$remote/$2/" "$local_dir/$2/" ;;
+        dir:push) run_rsync "$local_dir/$2/" "$remote/$2/" ;;
+        file:pull) pull_exists "$remote/$2" && run_rsync "$remote/$2" "$local_dir/$2" ;;
+        file:push) run_rsync "$local_dir/$2" "$remote/$2" ;;
       esac
     }
 
-    # One rclone call per project - never a bulk copy of the whole `projects`
+    # One rsync call per project - never a bulk copy of the whole `projects`
     # tree - so a hook scoped to $target_dir only pays for listing/comparing
     # its own project instead of every project on disk.
     sync_projects() {
@@ -193,24 +204,25 @@ let
           if [ -n "$target_dir" ]; then
             slug="$(raw_slug "$target_dir")"
             d="$local_dir/projects/$slug"
-            [ -d "$d" ] && run_rclone copy "$d" "$remote/projects/$(remote_slug_for "$slug")" "''${opts[@]}"
+            [ -d "$d" ] && run_rsync "$d/" "$remote/projects/$(remote_slug_for "$slug")/"
           else
             for d in "$local_dir"/projects/*/; do
               [ -d "$d" ] || continue
               slug="$(${pkgs.coreutils}/bin/basename "$d")"
-              run_rclone copy "$d" "$remote/projects/$(remote_slug_for "$slug")" "''${opts[@]}"
+              run_rsync "$d" "$remote/projects/$(remote_slug_for "$slug")/"
             done
           fi
           ;;
         pull)
           if [ -n "$target_dir" ]; then
             slug="$(raw_slug "$target_dir")"
-            run_rclone copy "$remote/projects/$(remote_slug_for "$slug")" "$local_dir/projects/$slug" "''${opts[@]}" --create-empty-src-dirs
+            remote_path="$remote/projects/$(remote_slug_for "$slug")/"
+            pull_exists "$remote_path" && run_rsync "$remote_path" "$local_dir/projects/$slug/"
           else
             while IFS= read -r remote_name; do
               [ -n "$remote_name" ] || continue
-              run_rclone copy "$remote/projects/$remote_name" "$local_dir/projects/$(local_slug_for "$remote_name")" "''${opts[@]}" --create-empty-src-dirs
-            done < <(${pkgs.rclone}/bin/rclone lsf "$remote/projects" --dirs-only 2>/dev/null | ${pkgs.gnused}/bin/sed 's:/$::')
+              run_rsync "$remote/projects/$remote_name/" "$local_dir/projects/$(local_slug_for "$remote_name")/"
+            done < <(${pkgs.rsync}/bin/rsync -e "$rsync_ssh" --list-only "$remote/projects/" 2>/dev/null | ${pkgs.gawk}/bin/awk '$1 ~ /^d/ && $NF != "." {print $NF}')
           fi
           ;;
       esac
@@ -268,8 +280,9 @@ in
       phpstormUrlHandler
       pngquant
       postman
-      rclone
+      rsync
       signal-desktop
+      sshpass
       spotify
       symfonyCliQuiet
       unstable.mattermost-desktop
@@ -826,6 +839,11 @@ in
 
     settings = {
       nas = variables.nas;
+
+      pcloud-rsync = {
+        hostname = "ersync.pcloud.com";
+        user = variables.pcloudRsync.email;
+      };
 
       "*" = {
         HostKeyAlgorithms = "+ssh-rsa";

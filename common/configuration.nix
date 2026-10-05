@@ -275,6 +275,12 @@ in
     extra-trusted-public-keys = [ "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g=" ];
   };
 
+  # Pinned once via ssh-keyscan rather than left to interactive TOFU, since
+  # claude-sync's rsync-over-SSH calls to pCloud (common/home.nix) run
+  # unattended (hooks/timer) and a first-connection prompt would just hang them.
+  programs.ssh.knownHosts."ersync.pcloud.com".publicKey =
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINZkQzwDQnSA1F2C2xKXdau/bfz3WRiWVfyK5GcJ7rHF";
+
   nixpkgs.config.allowUnfree = true;
 
   fonts.packages = with pkgs; [

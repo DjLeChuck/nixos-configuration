@@ -24,4 +24,7 @@
   sshConfigPrivate = {
     repoPath = "https://gitlab.host.com/<project-path>.git";
   };
+  pcloudRsync = {
+    email = "email@domain.tld";
+  };
 }

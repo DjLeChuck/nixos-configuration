@@ -164,14 +164,15 @@ cd ~/.ssh/config.d && git pull
 `~/.claude/{projects,plans,skills,CLAUDE.md,statusline.py}` (conversations,
 plans, custom skills, per-project memory, global preferences, status line
 script) sync between
-`home` and `work` through a shared pCloud remote, via the `claude-sync`
-script (`common/home.nix`) wired to Claude Code's `SessionStart`/`SessionEnd`
-hooks plus a 20-minute `claude-sync-push` timer as a crash safety net. It's a
-plain `rclone copy --update` in each direction - additive only, never
-deletes - which is safe because the two machines are never used at the same
-time. A desktop notification (`libnotify`) fires only on a real failure (a
-missing remote path on a first-ever sync doesn't count as one) - success is
-silent by design, the failure is what's worth interrupting for.
+`home` and `work` through pCloud's official rsync-over-SSH gateway (see
+[help.pcloud.com](https://help.pcloud.com/article/connect-to-pcloud-using-webdav-and-rsync)),
+via the `claude-sync` script (`common/home.nix`) wired to Claude Code's
+`SessionStart`/`SessionEnd` hooks plus a 20-minute `claude-sync-push` timer as
+a crash safety net. It's a plain `rsync -au` in each direction - additive
+only, never deletes - which is safe because the two machines are never used
+at the same time. A desktop notification (`libnotify`) fires only on a real
+failure (a missing remote path on a first-ever sync doesn't count as one) -
+success is silent by design, the failure is what's worth interrupting for.
 
 `~/.claude/projects/<slug>` is named from a literal transform of the
 project's absolute path, so a project living under `$HOME` (this
@@ -182,25 +183,23 @@ push and back to the local slug on pull, so it merges the same way projects
 under the shared `/srv/development` path already do - no per-project
 configuration needed.
 
-The rclone remote config (`~/.config/rclone/rclone.conf`, holding the pCloud
-OAuth token) is deployed by `modules/rclone-pcloud.nix` from a single sops
-secret shared by both machines, so the OAuth flow only has to happen once,
-not per machine:
+Authentication is a plain pCloud account password (this gateway has no OAuth
+app to revoke/break, unlike the old rclone-based setup - see git history),
+deployed by `modules/pcloud-rsync.nix` from a single sops secret shared by
+both machines, plus a hardcoded SSH host key pin and `Host pcloud-rsync`
+alias (`programs.ssh` in `common/configuration.nix`/`common/home.nix`) so
+hooks never hit an interactive prompt:
 
 ```bash
-# 1) Anywhere with a browser: authorize once and capture the resulting
-#    rclone.conf ([pcloud] section, OAuth token included). If this machine
-#    hasn't switched with `rclone` in home.packages yet, run it ephemerally
-#    instead - it still writes to the default ~/.config/rclone/rclone.conf:
-#    nix run nixpkgs#rclone -- config
-rclone config
-# -> n) New remote -> name "pcloud" -> type "pcloud" -> follow the browser flow
+# Encrypt the account password into the repo. Opens $EDITOR on a scratch
+# buffer - paste the raw password (any character is fine, no shell quoting
+# involved) and save. Don't use `sops -e`/shell redirection here: it'd need
+# the password typed on the command line (shell-special characters mangle
+# it) and match the wrong creation_rule (the temp file sops reads from,
+# not secrets/pcloud-rsync-password).
+sops secrets/pcloud-rsync-password
 
-# 2) Encrypt that file's content into the repo
-sops secrets/rclone-pcloud.conf
-# -> paste the full rclone.conf content, save
-
-# 3) Roll out to each machine
+# Roll out to each machine
 sudo nixos-rebuild switch --flake .#home
 sudo nixos-rebuild switch --flake .#work
 ```
@@ -214,7 +213,7 @@ Bootstrap the remote itself once, from whichever machine already has
 
 ```bash
 claude-sync push   # seed pCloud from this machine
-claude-sync pull   # on the other machine, once its rclone.conf is deployed
+claude-sync pull   # on the other machine, once its password secret is deployed
 ```
 
 Finally, add the hooks to `~/.claude/settings.json` on each machine (not
@@ -223,10 +222,11 @@ is interpolated by Claude Code into the command before it runs (see the
 [hooks reference](https://code.claude.com/docs/en/hooks.md)); passing it as
 the 2nd arg scopes the sync to that one project instead of every project
 under `~/.claude/projects` - confirmed empirically to be the exact directory
-`claude-sync` derives the project's slug from. A scoped sync still costs
-~2.3s (fixed per-`rclone`-invocation overhead - auth/TLS, not file count), so
-both hooks background it via `setsid ... &` instead of blocking session
-start/stop on it. `SessionStart`'s pull is safe to background outright - a
+`claude-sync` derives the project's slug from. A scoped sync still costs a
+noticeable fraction of a second per invocation (fixed SSH handshake
+overhead, not file count), so both hooks background it via `setsid ... &`
+instead of blocking session start/stop on it. `SessionStart`'s pull is safe
+to background outright - a
 session doesn't need its own history pulled before it can be used, and it
 self-corrects within a couple seconds. `SessionEnd`'s push relies on `setsid`
 actually detaching the process from the terminal session Claude Code is

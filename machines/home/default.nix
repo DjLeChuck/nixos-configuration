@@ -9,7 +9,7 @@
   imports = [
     ../../modules/ansible-vault-passwords.nix
     ../../modules/composer-auth.nix
-    ../../modules/rclone-pcloud.nix
+    ../../modules/pcloud-rsync.nix
     ../../modules/ssh-config-private.nix
     ../../modules/user-password.nix
     ../../modules/vpn-work.nix
@@ -17,7 +17,7 @@
 
   custom.ansibleVaultPasswords.user = "djlechuck";
   custom.composerAuth.user = "djlechuck";
-  custom.rclonePcloud.user = "djlechuck";
+  custom.pcloudRsync.user = "djlechuck";
   custom.sshConfigPrivate.user = "djlechuck";
   custom.userPassword.user = "djlechuck";
 
