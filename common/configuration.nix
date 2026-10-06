@@ -182,6 +182,11 @@ in
       "oejgccbfbmkkpaidnkphaiaecficdnfn" # Toggle Track
       "eadndfjplgieldjbigjakmdgkmoaaaoc" # Xdebug Helper
     ];
+
+    extraOpts = {
+      # Default (0) blocks DevTools on policy-force-installed extensions.
+      DeveloperToolsAvailability = 1;
+    };
   };
 
   programs.firefox = {
