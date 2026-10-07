@@ -73,17 +73,11 @@ in
       hostName = "djlechuck-linux";
       homeUser = "djlechuck";
       bootloader = {
-        boot.loader.grub = {
-          enable = true;
-          efiSupport = true;
-          efiInstallAsRemovable = false;
-          device = "nodev";
-          useOSProber = true;
-          # Native 4K resolution makes GRUB's fixed-size font tiny; a
-          # lower resolution keeps text readable (upscaled by the panel).
-          gfxmodeEfi = "1920x1080;auto";
-          configurationLimit = 5;
-        };
+        # Windows is auto-detected by systemd-boot from the shared ESP
+        # (EFI/Microsoft/Boot/bootmgfw.efi), no os-prober needed.
+        boot.loader.systemd-boot.enable = true;
+        boot.loader.systemd-boot.configurationLimit = 5;
+        boot.loader.timeout = 5;
         boot.loader.efi.canTouchEfiVariables = true;
       };
       modules = [
