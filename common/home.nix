@@ -167,9 +167,20 @@ let
     }
 
     run_rsync() {
-      local out rc
-      out="$(${pkgs.rsync}/bin/rsync -e "$rsync_ssh" -au "$@" 2>&1)"
-      rc=$?
+      local out rc attempt
+      for attempt in 1 2; do
+        out="$(${pkgs.rsync}/bin/rsync -e "$rsync_ssh" -au "$@" 2>&1)"
+        rc=$?
+        [ "$rc" = 0 ] && break
+        # pCloud's rsync gateway occasionally bounces a session right after
+        # accepting it (its own per-session FUSE mount briefly unavailable -
+        # "pcloud-shell: chroot(...) failed(107) Transport endpoint is not
+        # connected", surfacing client-side as "remote command not found"),
+        # a transient server-side blip. One quiet retry absorbs it instead
+        # of notifying on what a couple seconds later just works - the same
+        # tolerance rclone's own `--retries 1` gave for free.
+        [ "$attempt" = 1 ] && sleep 2
+      done
       if [ "$rc" != 0 ]; then
         failed=1
         # Detached hook runs discard stdout/stderr (see settings.json), so this
@@ -182,7 +193,10 @@ let
     # Unlike rclone, a plain rsync pull against a path that doesn't exist yet
     # remotely (first-ever sync, before any push happened) is a hard error -
     # check first so that expected case doesn't get logged/notified as one.
+    # Same retry tolerance as run_rsync, for the same transient-bounce reason.
     pull_exists() {
+      ${pkgs.rsync}/bin/rsync -e "$rsync_ssh" --list-only "$1" >/dev/null 2>&1 && return 0
+      sleep 2
       ${pkgs.rsync}/bin/rsync -e "$rsync_ssh" --list-only "$1" >/dev/null 2>&1
     }
 
