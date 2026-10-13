@@ -878,8 +878,8 @@ in
   # ~/.ssh/config.d is intentionally left unmanaged above (see `includes`):
   # its content lives in a private git repo. Clone it once over HTTPS using
   # the sops-provided token; the token ends up in that clone's local
-  # .git/config, so later updates are just a manual `git pull` in there - no
-  # auto-pull on every switch. On the very first switch the token may not be
+  # .git/config, so later updates come from the ssh-config-private-pull timer
+  # below - no auto-pull on every switch. On the very first switch the token may not be
   # decrypted yet (see README), so this skips instead of failing.
   #
   # `-c credential.helper=` disables the credential helper for this clone and
@@ -904,6 +904,36 @@ in
         "$target"
     fi
   '';
+
+  # Keeps the ~/.ssh/config.d clone above up to date. `--ff-only` so a local
+  # divergence fails loudly in the journal instead of creating a merge commit;
+  # the remote is only reachable on the company network/VPN, so a failed run
+  # is expected at times and simply retried at the next tick (Persistent
+  # catches up after a suspend/shutdown).
+  systemd.user.services.ssh-config-private-pull = {
+    Unit.Description = "Pull the private ~/.ssh/config.d repository";
+
+    Service = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.git}/bin/git -C %h/.ssh/config.d pull --ff-only --quiet";
+      TimeoutStartSec = "60";
+    };
+  };
+
+  systemd.user.timers.ssh-config-private-pull = {
+    Unit.Description = "Pull the private ~/.ssh/config.d repository a few times a day";
+
+    Timer = {
+      OnCalendar = [
+        "*-*-* 09:00:00"
+        "*-*-* 13:00:00"
+        "*-*-* 17:00:00"
+      ];
+      Persistent = true;
+    };
+
+    Install.WantedBy = [ "timers.target" ];
+  };
 
   home.sessionVariables = {
     EDITOR = "vim";
