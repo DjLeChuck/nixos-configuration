@@ -61,11 +61,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1786606065,
-        "narHash": "sha256-MIKPUtQ8xy3+DRUOFcaQlgDt4+q3cx2PnFpeZAJzPqw=",
+        "lastModified": 1792094455,
+        "narHash": "sha256-3p75A3yRk61q2yL3XtGpceYo2oo9FB8yxrHdaytyNA8=",
         "owner": "umanit",
         "repo": "direnv-ide-shim",
-        "rev": "f79e583061495d8dedf6b6b7992c63a9296fdb56",
+        "rev": "5eac35b7d4ee530ec025aaad89d9b6e8a467e172",
         "type": "github"
       },
       "original": {

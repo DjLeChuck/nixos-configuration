@@ -43,64 +43,16 @@ let
     pkgs.lib.concatMapStrings (pattern: pattern + "\n") gitGlobalIgnores
   );
 
-  # https://github.com/sanduhrs/phpstorm-url-handler - lets browser links like
-  # phpstorm://open?file=<path>&line=<n> (Symfony profiler, Whoops, etc.) open
-  # the file directly in PhpStorm via the desktop entry + MIME association below.
-  phpstormUrlHandler = pkgs.writeShellScriptBin "phpstorm-url-handler" ''
-    # phpstorm://open?url=file://@file&line=@line
-    # phpstorm://open?file=@file&line=@line
-    # phpstorm://open?url=file://@file:@line
-    # phpstorm://open?file=@file:line
-    #
-    # @license GPL
-    # @author Stefan Auditor <stefan@auditor.email>
-
-    function urldecode() { : "''${*//+/ }"; echo -e "''${_//%/\\x}"; }
-
-    arg=$(urldecode "''${1}")
-    pattern=".*file(:\/\/|\=)(.*)(:|&line=)(.*)"
-
-    # Get the file path.
-    file=$(echo "''${arg}" | sed -r "s/''${pattern}/\2/")
-
-    # Get the line number.
-    line=$(echo "''${arg}" | sed -r "s/''${pattern}/\4/")
-
-    # PhpStorm's CLI only accepts --line when the first argument is a project
-    # directory: since 2026.2 the launcher rejects `phpstorm --line <n> <file>`
-    # outright with "unrecognized option: --line". Walk up from the file to the
-    # nearest .idea/ to recover the project the file belongs to.
-    project=""
-    dir=$(dirname "''${file}")
-    while [ -n "''${dir}" ] && [ "''${dir}" != "/" ]; do
-        if [ -d "''${dir}/.idea" ]; then
-            project="''${dir}"
-            break
-        fi
-        dir=$(dirname "''${dir}")
-    done
-
-    if [ -n "''${project}" ]; then
-        ${pkgs.jetbrains.phpstorm}/bin/phpstorm "''${project}" --line "''${line}" "''${file}"
-    else
-        # No project found: at least open the file, without jumping to the line.
-        ${pkgs.jetbrains.phpstorm}/bin/phpstorm "''${file}"
-    fi
-
-    # Raising the window is best-effort: without the guard, an empty match makes
-    # `wmctrl -i -a` swallow the next argument and fail.
-    filename=$(basename "''${file}")
-    window=$(${pkgs.wmctrl}/bin/wmctrl -l | grep -F "''${filename}" | tail -n 1 | cut -d ' ' -f1)
-    if [ -n "''${window}" ]; then
-        ${pkgs.wmctrl}/bin/wmctrl -i -a "''${window}"
-    fi
-
-    exit 0
-  '';
-
 in
 {
-  imports = [ claude-sync.homeManagerModules.default ];
+  imports = [
+    direnv-ide-shim.homeModules.phpstorm-url-handler
+    claude-sync.homeManagerModules.default
+  ];
+
+  # Opens phpstorm:// links (Symfony profiler, Whoops…) in PhpStorm. The module
+  # brings its own .desktop entry, MIME association and mimeinfo.cache refresh.
+  programs.phpstorm-url-handler.enable = true;
 
   home.stateVersion = "26.05";
 
@@ -123,7 +75,6 @@ in
       meld
       nixd
       nixfmt
-      phpstormUrlHandler
       pngquant
       postman
       signal-desktop
@@ -137,7 +88,6 @@ in
       tree
       trivy
       vlc
-      wmctrl
     ]
     ++ pkgs.lib.optionals privateToolsEnabled [
       self.packages.${pkgs.stdenv.hostPlatform.system}.lock-excel
@@ -157,24 +107,6 @@ in
     };
   };
 
-  # Written by hand instead of via `xdg.desktopEntries`: that module is
-  # broken on the pinned home-manager release (it always sets the removed
-  # `extraConfig` option internally - https://github.com/nix-community/home-manager,
-  # modules/misc/xdg-desktop-entries.nix - and errors on any entry).
-  xdg.dataFile."applications/phpstorm-url-handler.desktop".text = ''
-    [Desktop Entry]
-    Version=1.0
-    Type=Application
-    Name=PhpStorm URL Handler
-    Comment=Handle URL Scheme phpstorm://open?url=file://@file&line=@line and phpstorm://open?file=@file&line=@line
-    Icon=phpstorm
-    NoDisplay=true
-    Categories=TextEditor;Utility;
-    Exec=phpstorm-url-handler %u
-    Terminal=false
-    MimeType=x-scheme-handler/phpstorm;x-scheme-handler/pstorm;x-scheme-handler/txmt;
-  '';
-
   # Overrides the package's own Mattermost.desktop (same filename, so it
   # shadows it) to add StartupWMClass: recent Electron versions changed the
   # window's WM_CLASS to "Mattermost.Desktop", and without this GNOME Shell
@@ -192,15 +124,6 @@ in
     Categories=Network;InstantMessaging;
     StartupWMClass=Mattermost.Desktop
   '';
-
-  xdg.mimeApps = {
-    enable = true;
-    defaultApplications = {
-      "x-scheme-handler/phpstorm" = "phpstorm-url-handler.desktop";
-      "x-scheme-handler/pstorm" = "phpstorm-url-handler.desktop";
-      "x-scheme-handler/txmt" = "phpstorm-url-handler.desktop";
-    };
-  };
 
   # mimeapps.list/xdg-mime are correct as soon as it's written, but GNOME's
   # own app-chooser (what the browser's URL-open portal call goes through)
