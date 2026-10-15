@@ -10,6 +10,7 @@ let
     llm-agents
     toggl-redmine
     direnv-ide-shim
+    claude-sync
     openvpn3-switcher
     ;
 
@@ -60,6 +61,7 @@ let
           inherit
             toggl-redmine
             direnv-ide-shim
+            claude-sync
             llm-agents
             openvpn3-switcher
             self

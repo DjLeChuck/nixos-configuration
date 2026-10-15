@@ -34,6 +34,26 @@
         "type": "github"
       }
     },
+    "claude-sync": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1792091513,
+        "narHash": "sha256-pHdRIi4awFFvCMqwRjeHHED1fT7k9O7dDWx78Jx+CL0=",
+        "owner": "DjLeChuck",
+        "repo": "claude-sync",
+        "rev": "d45a13d853bf8f8a07c07e78f7852dff239a0e8b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "DjLeChuck",
+        "repo": "claude-sync",
+        "type": "github"
+      }
+    },
     "direnv-ide-shim": {
       "inputs": {
         "nixpkgs": [
@@ -232,6 +252,7 @@
     },
     "root": {
       "inputs": {
+        "claude-sync": "claude-sync",
         "direnv-ide-shim": "direnv-ide-shim",
         "flake-parts": "flake-parts",
         "foundryvtt": "foundryvtt",

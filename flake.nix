@@ -35,6 +35,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    claude-sync = {
+      url = "github:DjLeChuck/claude-sync";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     openvpn3-switcher = {
       url = "github:DjLeChuck/gnome-extensions-openvpn3-switcher";
       inputs.nixpkgs.follows = "nixpkgs";
