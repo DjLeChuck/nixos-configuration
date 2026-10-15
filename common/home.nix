@@ -5,6 +5,7 @@
   toggl-redmine,
   direnv-ide-shim,
   llm-agents,
+  openvpn3-switcher,
   self,
   ...
 }:
@@ -380,7 +381,7 @@ in
         (map (name: pkgs.gnomeExtensions.${name}.extensionUuid) (
           gnomeExtensionNames ++ osConfig.custom.gnomeExtensionNames
         ))
-        ++ [ self.packages.${pkgs.stdenv.hostPlatform.system}.openvpn3-switcher.extensionUuid ];
+        ++ [ openvpn3-switcher.packages.${pkgs.stdenv.hostPlatform.system}.default.extensionUuid ];
       always-show-log-out = true;
     };
 

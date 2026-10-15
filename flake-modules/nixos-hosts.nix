@@ -10,6 +10,7 @@ let
     llm-agents
     toggl-redmine
     direnv-ide-shim
+    openvpn3-switcher
     ;
 
   # Single place where every host's sops-nix / foundryvtt / home-manager
@@ -30,6 +31,7 @@ let
           self
           toggl-redmine
           nixpkgs-unstable
+          openvpn3-switcher
           ;
       };
       # Machine-specific modules are merged before the common home-manager
@@ -59,6 +61,7 @@ let
             toggl-redmine
             direnv-ide-shim
             llm-agents
+            openvpn3-switcher
             self
             ;
         };

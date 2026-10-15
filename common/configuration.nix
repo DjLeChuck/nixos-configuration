@@ -4,6 +4,7 @@
   pkgs,
   self,
   nixpkgs-unstable,
+  openvpn3-switcher,
   ...
 }:
 
@@ -143,7 +144,7 @@ in
     (map (name: pkgs.gnomeExtensions.${name}) (
       gnomeExtensionNames ++ config.custom.gnomeExtensionNames
     ))
-    ++ [ self.packages.${pkgs.stdenv.hostPlatform.system}.openvpn3-switcher ]
+    ++ [ openvpn3-switcher.packages.${pkgs.stdenv.hostPlatform.system}.default ]
     ++ (with pkgs; [
       dconf-editor
       docker-compose

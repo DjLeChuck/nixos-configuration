@@ -35,6 +35,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    openvpn3-switcher = {
+      url = "github:DjLeChuck/gnome-extensions-openvpn3-switcher";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     direnv-ide-shim = {
       url = "github:umanit/direnv-ide-shim";
       inputs.nixpkgs.follows = "nixpkgs";

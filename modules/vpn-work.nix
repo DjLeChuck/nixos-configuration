@@ -54,7 +54,7 @@ let
       ${pkgs.util-linux}/bin/runuser -u "$target_user" -- ${pkgs.openvpn3}/bin/openvpn3 "$@"
     }
 
-    # Same parsing approach as gnome-extensions/openvpn3-switcher/extension.js:
+    # Same parsing approach as the openvpn3-switcher GNOME extension:
     # sessions-list has no --json output; blocks are dashed-line separated,
     # each with a "Config name:" line if a session is active for it.
     session_names() {

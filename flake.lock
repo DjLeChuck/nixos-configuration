@@ -210,6 +210,26 @@
         "type": "github"
       }
     },
+    "openvpn3-switcher": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1792055455,
+        "narHash": "sha256-l06PzwsR+jU/yDOwJJyWFk6oavuH6gMhdetn6CbLDlo=",
+        "owner": "DjLeChuck",
+        "repo": "gnome-extensions-openvpn3-switcher",
+        "rev": "02090465a7e22a9ab548673eb886a2be7f85a685",
+        "type": "github"
+      },
+      "original": {
+        "owner": "DjLeChuck",
+        "repo": "gnome-extensions-openvpn3-switcher",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "direnv-ide-shim": "direnv-ide-shim",
@@ -219,6 +239,7 @@
         "llm-agents": "llm-agents",
         "nixpkgs": "nixpkgs",
         "nixpkgs-unstable": "nixpkgs-unstable",
+        "openvpn3-switcher": "openvpn3-switcher",
         "sops-nix": "sops-nix",
         "toggl-redmine": "toggl-redmine"
       }
