@@ -148,7 +148,40 @@ const OpenVPN3Indicator = GObject.registerClass(
           );
       });
 
-      this.connect("destroy", () => this._stopPolling());
+      // Polling stops entirely while disconnected (see _doRefresh), so a
+      // session that comes back on its own with nobody opening the menu
+      // (e.g. still finishing its own reconnect after the suspend/resume
+      // VPN hook) would otherwise leave the icon stuck on stale state
+      // forever. Resuming from suspend is the main case that can change VPN
+      // state without going through this indicator's own code paths, so
+      // force a refresh right then.
+      this._sleepSignalId = Gio.DBus.system.signal_subscribe(
+        "org.freedesktop.login1",
+        "org.freedesktop.login1.Manager",
+        "PrepareForSleep",
+        "/org/freedesktop/login1",
+        null,
+        Gio.DBusSignalFlags.NONE,
+        (connection, sender, path, iface, signal, params) => {
+          const [aboutToSuspend] = params.deep_unpack();
+          if (!aboutToSuspend)
+            this._refresh().catch((e) =>
+              logError(e, "openvpn3-switcher resume refresh failed"),
+            );
+        },
+      );
+
+      this.connect("destroy", () => {
+        this._stopPolling();
+        Gio.DBus.system.signal_unsubscribe(this._sleepSignalId);
+      });
+
+      // Reflect the real state as soon as the indicator exists instead of
+      // the hardcoded "disconnected" default above, which would otherwise
+      // stick until the menu is first opened (e.g. after a Shell restart).
+      this._refresh().catch((e) =>
+        logError(e, "openvpn3-switcher initial refresh failed"),
+      );
     }
 
     // Thin wrapper serializing concurrent calls: _doRefresh() spans multiple
