@@ -237,11 +237,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792055455,
-        "narHash": "sha256-l06PzwsR+jU/yDOwJJyWFk6oavuH6gMhdetn6CbLDlo=",
+        "lastModified": 1792239923,
+        "narHash": "sha256-RjtSsJtFGthh35ACnoNSrH5ok5S67/sfOrIRofOKWiE=",
         "owner": "DjLeChuck",
         "repo": "gnome-extensions-openvpn3-switcher",
-        "rev": "02090465a7e22a9ab548673eb886a2be7f85a685",
+        "rev": "1494f58eee018d13afc073183cfbd6609b837f4b",
         "type": "github"
       },
       "original": {
