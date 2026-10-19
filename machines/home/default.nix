@@ -44,20 +44,9 @@
     v11.port = 30011;
     v12.port = 30012;
     v13.port = 30013;
-    # Serves the dev directory, whose compendium packs must be writable
-    # (the unit runs with ProtectSystem=strict, hence the explicit whitelist).
-    v14 = {
-      port = 30014;
-      readWritePaths = [ "/srv/development/foundryvtt" ];
-    };
+    v14.port = 30014;
   };
   services.foundryvtt-gnome-extension.enable = true;
-
-  # Unix side of the v14 readWritePaths: let the service user write into the
-  # (externally owned) dev directory, including newly created files.
-  systemd.tmpfiles.rules = [
-    "A+ /srv/development/foundryvtt - - - - u:foundryvtt:rwX,d:u:foundryvtt:rwX"
-  ];
 
   services.xserver.videoDrivers = [ "nvidia" ];
 

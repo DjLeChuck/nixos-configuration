@@ -294,4 +294,13 @@ in
     noto-fonts-color-emoji
     liberation_ttf
   ];
+
+  # The v14 instance serves the dev directory, whose compendium packs must be
+  # writable: the unit runs with ProtectSystem=strict, hence the explicit
+  # whitelist, plus ACLs for the service user on the (externally owned) files,
+  # including newly created ones.
+  services.foundryvtt-instances.v14.readWritePaths = [ "/srv/development/foundryvtt" ];
+  systemd.tmpfiles.rules = [
+    "A+ /srv/development/foundryvtt - - - - u:foundryvtt:rwX,d:u:foundryvtt:rwX"
+  ];
 }
