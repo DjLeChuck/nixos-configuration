@@ -634,6 +634,8 @@ in
     Install.WantedBy = [ "timers.target" ];
   };
 
+  home.sessionPath = [ "${config.home.homeDirectory}/.local/bin" ];
+
   home.sessionVariables = {
     EDITOR = "vim";
     VISUAL = "vim";
