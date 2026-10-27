@@ -7,7 +7,6 @@ let
     home-manager
     sops-nix
     foundryvtt
-    llm-agents
     toggl-redmine
     direnv-ide-shim
     claude-sync
@@ -62,7 +61,6 @@ let
             toggl-redmine
             direnv-ide-shim
             claude-sync
-            llm-agents
             openvpn3-switcher
             self
             ;

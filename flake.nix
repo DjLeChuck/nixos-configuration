@@ -25,11 +25,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    llm-agents = {
-      url = "github:numtide/llm-agents.nix";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
     toggl-redmine = {
       url = "github:umanit/toggl-redmine";
       inputs.nixpkgs.follows = "nixpkgs";
