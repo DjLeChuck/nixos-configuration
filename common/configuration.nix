@@ -57,12 +57,12 @@ in
     }/bin/excel2jsonl";
   };
 
-  # Automatic daily GC instead of manually deciding when it's worth it -
-  # keeps 7 days of rollback-able generations, purges everything older.
-  nix.gc = {
-    automatic = true;
+  # Automatic daily GC through nh (conflicts with nix.gc.automatic): keeps the
+  # 3 latest generations and anything younger than 3 days, purges the rest.
+  programs.nh.clean = {
+    enable = true;
     dates = "daily";
-    options = "--delete-older-than 7d";
+    extraArgs = "--keep 3 --keep-since 3d";
   };
 
   # Hardlinks identical files across store paths to reclaim space, since
@@ -213,7 +213,19 @@ in
 
   programs.xwayland.enable = true;
 
-  virtualisation.docker.enable = true;
+  virtualisation.docker = {
+    enable = true;
+    # Build cache, stopped containers and unused images pile up (~100 GB seen);
+    # volumes are never pruned (no --volumes flag).
+    autoPrune = {
+      enable = true;
+      dates = "weekly";
+      flags = [
+        "--all"
+        "--filter=until=168h"
+      ];
+    };
+  };
 
   services.openssh = {
     enable = true;
