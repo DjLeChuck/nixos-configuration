@@ -21,6 +21,7 @@ let
     "**/_akkalia.yaml"
     "**/.claude/settings.local.json"
     ".direnv/"
+    ".claude/feature-**"
   ];
   # core.excludesFile patterns are always anchored at the repo root, never at
   # an absolute filesystem path, so scoping to /srv/development needs a gitdir
