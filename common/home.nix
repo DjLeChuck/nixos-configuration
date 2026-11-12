@@ -52,6 +52,7 @@ in
       gawk
       gimp
       gitflow
+      glab
       jetbrains.goland
       jetbrains.phpstorm
       jpegoptim
@@ -330,6 +331,13 @@ in
         };
       }
     ];
+  };
+
+  programs.gh = {
+    enable = true;
+    # Keep the existing libsecret credential helper for git over HTTPS.
+    gitCredentialHelper.enable = false;
+    settings.git_protocol = "https";
   };
 
   programs.git = {
