@@ -1,9 +1,6 @@
-{ config, pkgs, ... }:
+{ config, ... }:
 
 let
-  importedName = "wg-home";
-  displayName = "Maison";
-
   variables = import ../common/variables.nix;
 
   homeDomain = "djlechuck.fr";
@@ -11,21 +8,6 @@ let
   homeProxyAddress = variables.nas.hostname;
   # Loopback address dnsmasq listens on (127.0.0.53 and 127.0.0.54 are taken by systemd-resolved's stubs).
   dnsAddress = "127.0.0.100";
-
-  importScript = pkgs.writeShellScript "networkmanager-import-vpn-home" ''
-    set -eu
-    # Always re-import so changes to the sops config (AllowedIPs, DNS...) are applied.
-    ${pkgs.networkmanager}/bin/nmcli connection delete "${displayName}" || true
-    ${pkgs.networkmanager}/bin/nmcli connection import type wireguard file "${
-      config.sops.secrets."vpn-home-config".path
-    }"
-    ${pkgs.networkmanager}/bin/nmcli connection modify "${importedName}" connection.id "${displayName}"
-    # Split DNS: only ${homeDomain} goes to the local dnsmasq, everything else keeps using the current network's DNS.
-    ${pkgs.networkmanager}/bin/nmcli connection modify "${displayName}" \
-      connection.autoconnect no \
-      ipv4.dns "${dnsAddress}" \
-      ipv4.dns-search "~${homeDomain}"
-  '';
 in
 {
   # The public records for ${homeDomain} point to the box's public IP, which is also the WireGuard
@@ -42,23 +24,49 @@ in
     };
   };
 
-  sops.secrets."vpn-home-config" = {
-    sopsFile = ../secrets/vpn-home/home.conf;
-    format = "binary";
-    path = "/run/secrets/${importedName}.conf";
+  sops.secrets = {
+    "vpn-home/private-key".sopsFile = ../secrets/common.yaml;
+    "vpn-home/public-key".sopsFile = ../secrets/common.yaml;
+    "vpn-home/preshared-key".sopsFile = ../secrets/common.yaml;
+    "vpn-home/endpoint".sopsFile = ../secrets/common.yaml;
   };
 
-  systemd.services.networkmanager-import-vpn-home = {
-    description = "Import WireGuard home VPN into NetworkManager";
-    after = [ "NetworkManager.service" ];
-    wants = [ "NetworkManager.service" ];
-    wantedBy = [ "multi-user.target" ];
-    # The runtime secret path is constant, so trigger on the encrypted file's content instead.
-    restartTriggers = [ ../secrets/vpn-home/home.conf ];
-    serviceConfig = {
-      Type = "oneshot";
-      RemainAfterExit = true;
-      ExecStart = "${importScript}";
+  sops.templates."vpn-home-env".content = ''
+    VPN_HOME_PRIVATE_KEY=${config.sops.placeholder."vpn-home/private-key"}
+    VPN_HOME_PUBLIC_KEY=${config.sops.placeholder."vpn-home/public-key"}
+    VPN_HOME_PRESHARED_KEY=${config.sops.placeholder."vpn-home/preshared-key"}
+    VPN_HOME_ENDPOINT=${config.sops.placeholder."vpn-home/endpoint"}
+  '';
+
+  networking.networkmanager.ensureProfiles = {
+    environmentFiles = [ config.sops.templates."vpn-home-env".path ];
+
+    profiles."Maison" = {
+      connection = {
+        id = "Maison";
+        type = "wireguard";
+        interface-name = "wg-home";
+        autoconnect = false;
+      };
+      wireguard = {
+        private-key = "$VPN_HOME_PRIVATE_KEY";
+        private-key-flags = 0;
+      };
+      # Only the tunnel and the home LAN go through the VPN, not all traffic.
+      "wireguard-peer.$VPN_HOME_PUBLIC_KEY" = {
+        endpoint = "$VPN_HOME_ENDPOINT";
+        preshared-key = "$VPN_HOME_PRESHARED_KEY";
+        preshared-key-flags = 0;
+        allowed-ips = "10.8.0.0/24;192.168.0.0/24;";
+      };
+      ipv4 = {
+        method = "manual";
+        address1 = "10.8.0.2/32";
+        # Split DNS: only ${homeDomain} goes to the local dnsmasq, everything else keeps using the current network's DNS.
+        dns = "${dnsAddress};";
+        dns-search = "~${homeDomain};";
+      };
+      ipv6.method = "ignore";
     };
   };
 }
