@@ -74,6 +74,7 @@ in
       tree
       trivy
       vlc
+      wl-clipboard
     ]
     ++ pkgs.lib.optionals privateToolsEnabled [
       self.packages.${pkgs.stdenv.hostPlatform.system}.lock-excel
