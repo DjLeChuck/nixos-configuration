@@ -7,11 +7,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1795464071,
-        "narHash": "sha256-aNFqH24LdgNlnEY7wBo+Vj2pCbY+sICFr+F01ON1dB0=",
+        "lastModified": 1795465447,
+        "narHash": "sha256-zEPSKzFLLp4pqWkEN3SceSnCxJquZNOQ7qV4cu0KymM=",
         "owner": "DjLeChuck",
         "repo": "claude-sync",
-        "rev": "8fe6e01cfbcbcad3516b5bb370e7f90daef78065",
+        "rev": "76c3e84eb232c605ccd5d52f84d010c97999af28",
         "type": "github"
       },
       "original": {
