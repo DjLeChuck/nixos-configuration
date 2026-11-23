@@ -7,6 +7,7 @@
 {
   imports = [
     ../../modules/ansible-vault-passwords.nix
+    ../../modules/claude-sync.nix
     ../../modules/composer-auth.nix
     ../../modules/pcloud-rsync.nix
     ../../modules/ssh-config-private.nix
@@ -16,6 +17,7 @@
   ];
 
   custom.ansibleVaultPasswords.user = "vdebona";
+  custom.claudeSync.user = "vdebona";
   custom.composerAuth.user = "vdebona";
   custom.pcloudRsync.user = "vdebona";
   custom.sshConfigPrivate.user = "vdebona";

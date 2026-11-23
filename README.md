@@ -159,20 +159,20 @@ every switch:
 cd ~/.ssh/config.d && git pull
 ```
 
-#### Claude Code data sync (pCloud)
+#### Claude Code data sync (Nextcloud)
 
 `~/.claude/{projects,plans,skills,CLAUDE.md,statusline.py}` (conversations,
 plans, custom skills, per-project memory, global preferences, status line
-script) sync between
-`home` and `work` through pCloud's official rsync-over-SSH gateway (see
-[help.pcloud.com](https://help.pcloud.com/article/connect-to-pcloud-using-webdav-and-rsync)),
-via the `claude-sync` script (`common/home.nix`) wired to Claude Code's
-`SessionStart`/`SessionEnd` hooks plus a 20-minute `claude-sync-push` timer as
-a crash safety net. It's a plain `rsync -au` in each direction - additive
-only, never deletes - which is safe because the two machines are never used
-at the same time. A desktop notification (`libnotify`) fires only on a real
-failure (a missing remote path on a first-ever sync doesn't count as one) -
-success is silent by design, the failure is what's worth interrupting for.
+script) sync between `home` and `work` through the self-hosted Nextcloud,
+over WebDAV, via [`claude-sync`](https://github.com/DjLeChuck/claude-sync)
+(`services.claude-sync` in `common/home.nix`, `webdav` backend, i.e. rclone)
+wired to Claude Code's `SessionStart`/`SessionEnd` hooks plus a periodic
+`claude-sync-push` timer as a crash safety net. It's an additive copy in each
+direction (`rclone copy --update`: only overwrites older files, never
+deletes), which is safe because the two machines are never used at the same
+time. A desktop notification (`libnotify`) fires only on a real failure (a
+missing remote path on a first-ever sync doesn't count as one) - success is
+silent by design, the failure is what's worth interrupting for.
 
 `~/.claude/projects/<slug>` is named from a literal transform of the
 project's absolute path, so a project living under `$HOME` (this
@@ -183,21 +183,18 @@ push and back to the local slug on pull, so it merges the same way projects
 under the shared `/srv/development` path already do - no per-project
 configuration needed.
 
-Authentication is a plain pCloud account password (this gateway has no OAuth
-app to revoke/break, unlike the old rclone-based setup - see git history),
-deployed by `modules/pcloud-rsync.nix` from a single sops secret shared by
-both machines, plus a hardcoded SSH host key pin and `Host pcloud-rsync`
-alias (`programs.ssh` in `common/configuration.nix`/`common/home.nix`) so
-hooks never hit an interactive prompt:
+Authentication is a Nextcloud app password (Settings -> Security; revocable
+on its own, without touching the account password). Both it and the WebDAV
+URL (`https://<server>/remote.php/dav/files/<user>/claude-code-sync`) are
+secrets in `secrets/common.yaml`, deployed by `modules/claude-sync.nix` to
+`~/.config/claude-sync-webdav-{url,password}` and read by `claude-sync` at
+runtime (`remoteFile` / `passwordFile`), so neither ends up in the
+world-readable Nix store:
 
 ```bash
-# Encrypt the account password into the repo. Opens $EDITOR on a scratch
-# buffer - paste the raw password (any character is fine, no shell quoting
-# involved) and save. Don't use `sops -e`/shell redirection here: it'd need
-# the password typed on the command line (shell-special characters mangle
-# it) and match the wrong creation_rule (the temp file sops reads from,
-# not secrets/pcloud-rsync-password).
-sops secrets/pcloud-rsync-password
+# Add or change them under the `claude-sync:` key (webdav-url,
+# webdav-password); opens $EDITOR on the decrypted file.
+sops secrets/common.yaml
 
 # Roll out to each machine
 sudo nixos-rebuild switch --flake .#home
@@ -205,15 +202,15 @@ sudo nixos-rebuild switch --flake .#work
 ```
 
 As with the other sops-backed secrets above, the very first switch on a
-machine may run before the secret is decrypted - `claude-sync` will just fail
-silently (best-effort) until the next switch picks it up.
+machine may run before the secrets are decrypted - `claude-sync` will fail
+(and notify) until the next switch picks them up.
 
-Bootstrap the remote itself once, from whichever machine already has
-`~/.claude` data:
+Bootstrap the remote itself once, from each machine (the copy is additive,
+so both sides end up merged on Nextcloud):
 
 ```bash
-claude-sync push   # seed pCloud from this machine
-claude-sync pull   # on the other machine, once its password secret is deployed
+claude-sync push   # seed Nextcloud from this machine
+claude-sync pull   # then pick up what the other machine pushed
 ```
 
 Finally, add the hooks to `~/.claude/settings.json` on each machine (not
@@ -223,7 +220,7 @@ is interpolated by Claude Code into the command before it runs (see the
 the 2nd arg scopes the sync to that one project instead of every project
 under `~/.claude/projects` - confirmed empirically to be the exact directory
 `claude-sync` derives the project's slug from. A scoped sync still costs a
-noticeable fraction of a second per invocation (fixed SSH handshake
+noticeable fraction of a second per invocation (fixed connection
 overhead, not file count), so both hooks background it via `setsid ... &`
 instead of blocking session start/stop on it. `SessionStart`'s pull is safe
 to background outright - a

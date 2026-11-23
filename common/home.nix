@@ -262,15 +262,17 @@ in
     Install.WantedBy = [ "timers.target" ];
   };
 
-  # Syncs ~/.claude to the pCloud account's rsync-over-SSH gateway (see
-  # help.pcloud.com "Connect to pCloud using WebDAV and rsync"), authenticated
-  # with the password deployed by modules/pcloud-rsync.nix. The "pcloud-rsync"
-  # host alias comes from programs.ssh.settings below; the hooks that call
-  # `claude-sync` live in ~/.claude/settings.json on each machine.
+  # Syncs ~/.claude to the self-hosted Nextcloud over WebDAV (through rclone),
+  # authenticated with a Nextcloud app password. The URL and the password are
+  # both sops secrets deployed by modules/claude-sync.nix and read at runtime,
+  # so neither lands in the Nix store. The hooks that call `claude-sync` live
+  # in ~/.claude/settings.json on each machine.
   services.claude-sync = {
     enable = true;
-    remote = "pcloud-rsync:/claude-code-sync";
-    passwordFile = "$HOME/.config/pcloud-rsync-password";
+    backend = "webdav";
+    remoteFile = "$HOME/.config/claude-sync-webdav-url";
+    passwordFile = "$HOME/.config/claude-sync-webdav-password";
+    webdav.user = "admin";
     # statusline.py is specific to this setup, not a stock Claude Code file.
     files = [
       "CLAUDE.md"
