@@ -565,11 +565,6 @@ in
     settings = {
       nas = variables.nas;
 
-      pcloud-rsync = {
-        hostname = "ersync.pcloud.com";
-        user = variables.pcloudRsync.email;
-      };
-
       "*" = {
         HostKeyAlgorithms = "+ssh-rsa";
         PubkeyAcceptedKeyTypes = "+ssh-rsa";
