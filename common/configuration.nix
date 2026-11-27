@@ -59,10 +59,13 @@ in
 
   # Automatic daily GC through nh (conflicts with nix.gc.automatic): keeps the
   # 3 latest generations and anything younger than 3 days, purges the rest.
+  # --no-direnv: nh would judge .direnv gcroots by their symlink mtime (only
+  # bumped on a shell rebuild, not on use) and drop the shell of active
+  # projects. Stale .direnv/ dirs are removed by the direnv-prune user timer.
   programs.nh.clean = {
     enable = true;
     dates = "daily";
-    extraArgs = "--keep 3 --keep-since 3d";
+    extraArgs = "--keep 3 --keep-since 3d --no-direnv";
   };
 
   # Hardlinks identical files across store paths to reclaim space, since

@@ -30,6 +30,75 @@ let
     pkgs.lib.concatMapStrings (pattern: pattern + "\n") gitGlobalIgnores
   );
 
+  # Removes the .direnv/ directory of projects left untouched for a while.
+  # nh clean is told to skip direnv gcroots (--no-direnv) because it judges
+  # them by the symlink mtime, which only changes when the shell is rebuilt and
+  # not when the project is used: it would drop the shell of an active project.
+  # Here, activity is the newest of the last commit date and the mtime of the
+  # git index/HEAD/reflog (checkouts, pulls, status) and of the flake files.
+  # Once .direnv/ is gone its gcroots dangle, and the next nh clean / nix GC
+  # reclaims the shell from /nix/store; direnv rebuilds it on the next cd.
+  # Run `direnv-prune` by hand with DRY_RUN=1 to preview what would go.
+  direnvPrune = pkgs.writeShellApplication {
+    name = "direnv-prune";
+    runtimeInputs = with pkgs; [
+      coreutils
+      findutils
+      git
+    ];
+    text = ''
+      root="''${DIRENV_PRUNE_ROOT:-/srv/development}"
+      max_age_days="''${DIRENV_PRUNE_DAYS:-30}"
+      dry_run="''${DRY_RUN:-0}"
+
+      now=$(date +%s)
+
+      last_activity() {
+        local dir=$1 latest=0 ts f
+
+        ts=$(git -C "$dir" log -1 --format=%ct 2>/dev/null || true)
+        if [ -n "$ts" ] && [ "$ts" -gt "$latest" ]; then
+          latest=$ts
+        fi
+
+        for f in .git/index .git/HEAD .git/logs/HEAD .envrc flake.nix flake.lock; do
+          if [ -e "$dir/$f" ]; then
+            ts=$(stat -c %Y "$dir/$f")
+            if [ "$ts" -gt "$latest" ]; then
+              latest=$ts
+            fi
+          fi
+        done
+
+        echo "$latest"
+      }
+
+      while IFS= read -r -d "" envdir; do
+        project=$(dirname "$envdir")
+        last=$(last_activity "$project")
+
+        if [ "$last" -eq 0 ]; then
+          echo "skip (no activity signal): $project"
+          continue
+        fi
+
+        age_days=$(((now - last) / 86400))
+        if [ "$age_days" -le "$max_age_days" ]; then
+          continue
+        fi
+
+        if [ "$dry_run" = 1 ]; then
+          echo "would remove $envdir (inactive for $age_days days)"
+        else
+          echo "removing $envdir (inactive for $age_days days)"
+          rm -rf -- "$envdir"
+        fi
+      done < <(find "$root" -maxdepth 5 \
+        \( -name node_modules -prune \) -o \
+        \( -type d -name .direnv -print0 -prune \))
+    '';
+  };
+
 in
 {
   imports = [
@@ -46,6 +115,7 @@ in
   home.packages =
     with pkgs;
     [
+      direnvPrune
       bitwarden-desktop
       bitwarden-cli
       brave
@@ -635,6 +705,26 @@ in
         "*-*-* 13:00:00"
         "*-*-* 17:00:00"
       ];
+      Persistent = true;
+    };
+
+    Install.WantedBy = [ "timers.target" ];
+  };
+
+  systemd.user.services.direnv-prune = {
+    Unit.Description = "Remove .direnv/ of projects inactive for a long time";
+
+    Service = {
+      Type = "oneshot";
+      ExecStart = "${direnvPrune}/bin/direnv-prune";
+    };
+  };
+
+  systemd.user.timers.direnv-prune = {
+    Unit.Description = "Daily cleanup of .direnv/ in inactive projects";
+
+    Timer = {
+      OnCalendar = "*-*-* 12:30:00";
       Persistent = true;
     };
 
